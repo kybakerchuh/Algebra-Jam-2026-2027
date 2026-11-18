@@ -1285,6 +1285,12 @@
       document.getElementById('hubTopicCountBadge').textContent = `${topicMeta.count} Qs`;
 
       document.getElementById('toggleSoundBtn').textContent = state.soundOn ? 'SFX: ON' : 'SFX: OFF';
+
+      try {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ type: 'OST_TOPIC_CHANGED', topicId: state.ostTopic }, window.location.origin);
+        }
+      } catch (e) {}
     }
 
     function openTeamSelectModal(side) {
@@ -1601,6 +1607,18 @@
 
       updateHud();
       document.getElementById('mathNextBtn').classList.remove('hidden');
+
+      try {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({
+            type: 'OST_ANSWER_RECORDED',
+            topicId: prob.topic,
+            selectedTopicMode: state.ostTopic,
+            questionId: prob.id,
+            isCorrect
+          }, window.location.origin);
+        }
+      } catch (e) {}
     }
 
     function resumeFromMathTimeout() {
@@ -3172,6 +3190,13 @@
         state.mode = 'PLAYING';
         updateHud();
         triggerAnnouncer(state.quarter <= 4 ? `QUARTER ${state.quarter}!` : 'OVERTIME!', 1.2);
+      }
+    });
+
+    window.addEventListener('message', (event) => {
+      if (event.origin !== window.location.origin) return;
+      if (event.data && event.data.type === 'OST_PAUSE_IF_PLAYING' && state.mode === 'PLAYING') {
+        togglePause();
       }
     });
 

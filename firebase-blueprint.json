@@ -1,0 +1,106 @@
+{
+  "entities": {
+    "TopicStats": {
+      "title": "TopicStats",
+      "description": "Right and wrong answer counters for a single OST Playbook topic.",
+      "type": "object",
+      "properties": {
+        "correct": {
+          "type": "integer",
+          "description": "Total correct answers recorded for this topic."
+        },
+        "wrong": {
+          "type": "integer",
+          "description": "Total wrong answers recorded for this topic."
+        }
+      },
+      "required": ["correct", "wrong"]
+    },
+    "TopicStatsMap": {
+      "title": "TopicStatsMap",
+      "description": "Per-topic right and wrong breakdown keyed by the 10 OST Playbook topic identifiers.",
+      "type": "object",
+      "properties": {
+        "LAZY_WAY": { "$ref": "#/entities/TopicStats" },
+        "DATA_ANALYSIS": { "$ref": "#/entities/TopicStats" },
+        "POLYNOMIALS": { "$ref": "#/entities/TopicStats" },
+        "FUNCTIONS": { "$ref": "#/entities/TopicStats" },
+        "QUADRATICS": { "$ref": "#/entities/TopicStats" },
+        "EXPONENTIALS": { "$ref": "#/entities/TopicStats" },
+        "LINEAR_1": { "$ref": "#/entities/TopicStats" },
+        "LINEAR_2": { "$ref": "#/entities/TopicStats" },
+        "SYSTEMS": { "$ref": "#/entities/TopicStats" },
+        "EXPR_EQ_INEQ": { "$ref": "#/entities/TopicStats" }
+      },
+      "required": [
+        "LAZY_WAY",
+        "DATA_ANALYSIS",
+        "POLYNOMIALS",
+        "FUNCTIONS",
+        "QUADRATICS",
+        "EXPONENTIALS",
+        "LINEAR_1",
+        "LINEAR_2",
+        "SYSTEMS",
+        "EXPR_EQ_INEQ"
+      ]
+    },
+    "StudentProgress": {
+      "title": "StudentProgress",
+      "description": "Lifetime and per-topic Algebra 1 OST Playbook right/wrong progress for an authenticated student.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Firebase Auth UID of the student owner."
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "description": "Student display name from Google Sign-In."
+        },
+        "lifetimeCorrect": {
+          "type": "integer",
+          "description": "Total lifetime correct answers across all OST Playbook topics."
+        },
+        "lifetimeWrong": {
+          "type": "integer",
+          "description": "Total lifetime wrong answers across all OST Playbook topics."
+        },
+        "topics": {
+          "$ref": "#/entities/TopicStatsMap",
+          "description": "Map of all 10 OST Playbook topics tracking lifetime correct and wrong counts."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the student progress profile was created."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of the latest recorded answer or profile sync."
+        }
+      },
+      "required": [
+        "uid",
+        "displayName",
+        "lifetimeCorrect",
+        "lifetimeWrong",
+        "topics",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/studentProgress/{userId}": {
+      "schema": { "$ref": "#/entities/StudentProgress" },
+      "description": "Stores each signed-in student's lifetime and per-topic OST Playbook right/wrong statistics, readable and writable only by that authenticated student."
+    }
+  }
+}
