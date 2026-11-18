@@ -12,7 +12,7 @@ export default function App() {
     <iframe
       ref={iframeRef}
       title="NBA Jam: On Fire Edition (2026-27 Season)"
-      src="/heights-jam.html"
+      src="./heights-jam.html"
       onLoad={() => iframeRef.current?.contentWindow?.focus()}
       className="w-screen h-screen border-0 block bg-[#080c14]"
     />
