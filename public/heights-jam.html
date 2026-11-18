@@ -1,0 +1,3186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NBA Jam: On Fire Edition (2026-27 Season)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Russo+One&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #080c14;
+      font-family: 'Inter', sans-serif;
+      color: #f8fafc;
+    }
+    .font-arcade {
+      font-family: 'Russo One', sans-serif;
+      letter-spacing: 0.03em;
+    }
+    .title-gradient {
+      background: linear-gradient(180deg, #fde047 0%, #fb923c 55%, #ea580c 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 4px 18px rgba(249, 115, 22, 0.35));
+    }
+    .tipoff-btn {
+      background: linear-gradient(180deg, #f97316 0%, #c2410c 100%);
+      border: 2px solid #fdba74;
+      box-shadow: 0 6px 24px rgba(234, 88, 12, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      transition: transform 0.08s ease, filter 0.12s ease;
+    }
+    .tipoff-btn:hover {
+      filter: brightness(1.08);
+      transform: translateY(-1px);
+    }
+    .tipoff-btn:active {
+      transform: translateY(2px);
+    }
+    .fire-glow {
+      text-shadow: 0 0 12px rgba(251, 146, 60, 0.9), 0 0 26px rgba(239, 68, 68, 0.8);
+    }
+    .gold-glow {
+      text-shadow: 0 2px 10px rgba(250, 204, 21, 0.65);
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0b111e;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #f97316;
+      border-radius: 9999px;
+    }
+
+    /* CRISP MATH TYPOGRAPHY, VERTICAL FRACTIONS & SUPERSCRIPTS (NO CLIPPING) */
+    .math-prose {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      word-break: normal;
+      overflow-wrap: normal;
+      hyphens: none;
+      line-height: 1.65;
+    }
+    .m-expr {
+      display: inline-flex;
+      align-items: center;
+      flex-wrap: nowrap;
+      white-space: nowrap;
+      vertical-align: middle;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      padding: 0.05em 0.12em;
+    }
+    .m-frac {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      vertical-align: middle;
+      margin: 0.08em 0.18em;
+      line-height: 1.05;
+      font-size: 0.88em;
+    }
+    .m-frac > .m-num {
+      border-bottom: 2px solid currentColor;
+      padding: 0 0.24em 0.12em;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .m-frac > .m-den {
+      padding: 0.12em 0.24em 0;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .m-sup {
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.7em;
+      line-height: 1;
+      vertical-align: super;
+      transform: translateY(-0.35em);
+      margin-left: 0.04em;
+    }
+    .m-sup .m-frac {
+      font-size: 0.8em;
+      margin: 0 0.08em;
+    }
+    .m-sup .m-frac > .m-num {
+      border-bottom-width: 1.5px;
+      padding: 0 0.16em 0.06em;
+    }
+    .m-sup .m-frac > .m-den {
+      padding: 0.06em 0.16em 0;
+    }
+    .math-choice-btn {
+      word-break: normal;
+      overflow-wrap: normal;
+      hyphens: none;
+      line-height: 1.45;
+    }
+  </style>
+</head>
+<body class="w-screen h-screen overflow-hidden flex flex-col bg-[#080c14]">
+
+  <!-- TOP ARCADE SCOREBOARD HUD (IN-GAME) -->
+  <header id="topHud" class="hidden w-full bg-gradient-to-r from-[#070b14] via-[#0f172a] to-[#070b14] border-b-2 border-orange-500/50 px-3 py-1.5 z-20 shrink-0">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
+      <!-- PLAYER TEAM -->
+      <div class="flex items-center gap-2.5 flex-1 min-w-0">
+        <div id="hudPlayerBadge" class="w-10 h-10 rounded-xl flex items-center justify-center font-arcade text-base font-bold border-2 border-white/30 shrink-0 shadow-md">
+          LAL
+        </div>
+        <div class="min-w-0 flex-1 max-w-[235px]">
+          <div class="flex items-center justify-between gap-1">
+            <span id="hudPlayerName" class="font-arcade text-sm sm:text-base tracking-wide truncate text-white">LAKERS</span>
+            <span id="hudPlayerStreak" class="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">NORMAL</span>
+          </div>
+          <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden border border-slate-700 mt-0.5">
+            <div id="hudPlayerTurbo" class="h-full bg-gradient-to-r from-amber-400 via-orange-500 to-red-500 transition-all duration-75" style="width: 100%;"></div>
+          </div>
+          <div id="hudPlayerFouls" class="flex items-center gap-2 text-[10px] text-slate-300 mt-0.5 truncate"></div>
+        </div>
+        <div id="hudPlayerScore" class="font-arcade text-3xl sm:text-4xl text-amber-400 gold-glow px-2">0</div>
+      </div>
+
+      <!-- CENTER CLOCK, QUARTER & MID-GAME TOPIC SWITCHER -->
+      <div class="flex flex-col items-center justify-center px-3.5 py-0.5 rounded-xl bg-black/75 border border-orange-500/40 shrink-0">
+        <div class="flex items-center gap-2">
+          <span id="hudQuarter" class="font-arcade text-xs sm:text-sm text-orange-400 tracking-wider">Q1</span>
+          <span class="text-slate-600">•</span>
+          <span id="hudClock" class="font-arcade text-xl sm:text-2xl text-white tracking-wider">2:00</span>
+        </div>
+        <div class="flex items-center gap-2 text-[10px] text-slate-400">
+          <span id="hudMathTimer" class="text-cyan-300 font-semibold">TIMEOUT IN 30s</span>
+          <span>|</span>
+          <button id="hudTopicBtn" class="text-emerald-300 hover:text-white font-bold uppercase tracking-wider cursor-pointer" title="Switch OST Topic">
+            TOPIC: ALL
+          </button>
+          <span>|</span>
+          <button id="hudPauseBtn" class="text-amber-300 hover:text-white font-bold uppercase tracking-wider cursor-pointer">PAUSE [P]</button>
+        </div>
+      </div>
+
+      <!-- CPU TEAM -->
+      <div class="flex items-center justify-end gap-2.5 flex-1 min-w-0">
+        <div id="hudCpuScore" class="font-arcade text-3xl sm:text-4xl text-amber-400 gold-glow px-2">0</div>
+        <div class="min-w-0 flex-1 max-w-[235px] text-right">
+          <div class="flex items-center justify-between gap-1">
+            <span id="hudCpuStreak" class="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">NORMAL</span>
+            <span id="hudCpuName" class="font-arcade text-sm sm:text-base tracking-wide truncate text-white">CELTICS</span>
+          </div>
+          <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden border border-slate-700 mt-0.5">
+            <div id="hudCpuTurbo" class="h-full bg-gradient-to-r from-emerald-400 to-teal-500 transition-all duration-75 ml-auto" style="width: 100%;"></div>
+          </div>
+          <div id="hudCpuFouls" class="flex items-center justify-end gap-2 text-[10px] text-slate-300 mt-0.5 truncate"></div>
+        </div>
+        <div id="hudCpuBadge" class="w-10 h-10 rounded-xl flex items-center justify-center font-arcade text-base font-bold border-2 border-white/30 shrink-0 shadow-md">
+          BOS
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN ARENA CONTAINER -->
+  <main class="relative flex-1 w-full h-full overflow-hidden flex items-center justify-center bg-[#080c14]">
+    <!-- GAME CANVAS -->
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- ANNOUNCER CALLOUT BANNER -->
+    <div id="announcerBanner" class="pointer-events-none hidden absolute top-5 left-1/2 -translate-x-1/2 z-20 text-center">
+      <div id="announcerText" class="font-arcade text-3xl sm:text-5xl text-amber-300 fire-glow uppercase tracking-wider px-5 py-1.5 rounded-2xl bg-black/70 border-2 border-orange-500/70">
+        BOOMSHAKALAKA!
+      </div>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- MAIN HUB OVERLAY                                                        -->
+    <!-- ======================================================================= -->
+    <section id="menuOverlay" class="absolute inset-0 z-30 flex items-center justify-center p-4 sm:p-6 bg-[#070b14]/96 backdrop-blur-md overflow-y-auto">
+      <div class="w-full max-w-5xl my-auto flex flex-col gap-5">
+        <!-- HEADER TITLE -->
+        <div class="text-center relative">
+          <button id="toggleSoundBtn" class="absolute right-0 top-1 px-3 py-1.5 rounded-xl bg-[#0e1525] hover:bg-slate-800 border border-slate-700/80 text-xs font-bold text-slate-300 cursor-pointer">
+            SFX: ON
+          </button>
+          <h1 class="font-arcade text-4xl sm:text-6xl title-gradient tracking-wide uppercase">
+            NBA JAM: ON FIRE
+          </h1>
+          <p class="text-xs sm:text-sm text-slate-300 font-medium mt-1">
+            Real-Life NBA Ratings • Aerial Dunk Packages • 300 Algebra 1 OST Playbook Questions
+          </p>
+        </div>
+
+        <!-- TOP ROW: YOUR SQUAD (P1) & OPPONENT (CPU) CARDS -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <!-- YOUR SQUAD (P1) -->
+          <div class="rounded-2xl bg-[#0b101d] border-2 border-amber-400/75 p-4 sm:p-5 shadow-[0_0_35px_rgba(250,204,21,0.08)]">
+            <div class="flex items-center justify-between mb-3">
+              <span class="font-arcade text-xs sm:text-sm text-amber-400 tracking-wider uppercase">YOUR SQUAD (P1)</span>
+              <button id="openPlayerSelectBtn" class="px-3.5 py-1.5 rounded-lg bg-[#1d1b18] hover:bg-amber-500/20 border border-amber-400/70 font-arcade text-xs text-amber-300 tracking-wider uppercase cursor-pointer transition">
+                CHANGE TEAM
+              </button>
+            </div>
+
+            <div class="flex items-center gap-3.5 mb-4">
+              <div id="hubPlayerBadge" class="w-14 h-14 rounded-2xl flex items-center justify-center font-arcade text-xl text-white border-2 border-white/80 shrink-0 shadow-lg" style="background:#552583;">
+                LAL
+              </div>
+              <div class="min-w-0">
+                <div id="hubPlayerTeamName" class="font-arcade text-xl sm:text-2xl text-white uppercase truncate">
+                  LOS ANGELES LAKERS
+                </div>
+                <div id="hubPlayerDuoNames" class="text-xs sm:text-sm text-slate-300 truncate mt-0.5">
+                  Luka Doncic (#77) • Austin Reaves (#15)
+                </div>
+              </div>
+            </div>
+
+            <div id="hubPlayerRoster" class="grid grid-cols-2 gap-3 bg-[#080c16] border border-slate-800/90 rounded-xl p-2.5"></div>
+          </div>
+
+          <!-- OPPONENT (CPU) -->
+          <div class="rounded-2xl bg-[#0b101d] border-2 border-rose-500/75 p-4 sm:p-5 shadow-[0_0_35px_rgba(244,63,94,0.08)]">
+            <div class="flex items-center justify-between mb-3">
+              <span class="font-arcade text-xs sm:text-sm text-rose-400 tracking-wider uppercase">OPPONENT (CPU)</span>
+              <button id="openCpuSelectBtn" class="px-3.5 py-1.5 rounded-lg bg-[#23141d] hover:bg-rose-500/20 border border-rose-400/70 font-arcade text-xs text-rose-300 tracking-wider uppercase cursor-pointer transition">
+                CHANGE TEAM
+              </button>
+            </div>
+
+            <div class="flex items-center gap-3.5 mb-4">
+              <div id="hubCpuBadge" class="w-14 h-14 rounded-2xl flex items-center justify-center font-arcade text-xl text-white border-2 border-white/80 shrink-0 shadow-lg" style="background:#007A33;">
+                BOS
+              </div>
+              <div class="min-w-0">
+                <div id="hubCpuTeamName" class="font-arcade text-xl sm:text-2xl text-white uppercase truncate">
+                  BOSTON CELTICS
+                </div>
+                <div id="hubCpuDuoNames" class="text-xs sm:text-sm text-slate-300 truncate mt-0.5">
+                  Jayson Tatum (#0) • Paul George (#13)
+                </div>
+              </div>
+            </div>
+
+            <div id="hubCpuRoster" class="grid grid-cols-2 gap-3 bg-[#080c16] border border-slate-800/90 rounded-xl p-2.5"></div>
+          </div>
+        </div>
+
+        <!-- MIDDLE ROW: CPU AI DIFFICULTY & OST PLAYBOOK TOPIC SELECTOR -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <!-- CPU AI DIFFICULTY -->
+          <div class="rounded-2xl bg-[#0b101d] border border-slate-800 p-4 flex flex-col justify-between">
+            <div class="font-arcade text-xs text-sky-400 tracking-wider uppercase mb-3">
+              CPU AI DIFFICULTY
+            </div>
+            <div class="grid grid-cols-3 gap-2.5">
+              <button data-cpu="rookie" class="cpu-diff-btn py-3 px-2 rounded-xl font-arcade text-xs sm:text-sm tracking-wider uppercase border transition cursor-pointer">
+                ROOKIE
+              </button>
+              <button data-cpu="allstar" class="cpu-diff-btn py-3 px-2 rounded-xl font-arcade text-xs sm:text-sm tracking-wider uppercase border transition cursor-pointer">
+                ALL-STAR
+              </button>
+              <button data-cpu="legend" class="cpu-diff-btn py-3 px-2 rounded-xl font-arcade text-xs sm:text-sm tracking-wider uppercase border transition cursor-pointer">
+                LEGEND
+              </button>
+            </div>
+          </div>
+
+          <!-- OST PLAYBOOK TOPIC SELECTOR -->
+          <div class="rounded-2xl bg-[#0b101d] border-2 border-emerald-500/60 p-4 flex flex-col justify-between">
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span class="font-arcade text-xs text-emerald-400 tracking-wider uppercase">OST PLAYBOOK TOPIC (300 Qs)</span>
+              <button id="openTopicSelectBtn" class="px-3.5 py-1 rounded-lg bg-[#0b2922] hover:bg-emerald-500/25 border border-emerald-400/70 font-arcade text-xs text-emerald-300 tracking-wider uppercase cursor-pointer transition">
+                SELECT TOPIC
+              </button>
+            </div>
+            <div class="rounded-xl bg-[#080c16] border border-slate-800/90 px-3.5 py-2.5 flex items-center justify-between gap-3">
+              <div class="min-w-0">
+                <div id="hubTopicTitle" class="font-arcade text-sm sm:text-base text-white uppercase truncate">
+                  ALL OST TOPICS (MIXED)
+                </div>
+                <div id="hubTopicSubtitle" class="text-xs text-slate-400 truncate mt-0.5">
+                  All 10 Playbook Sheets • 300 Total Questions
+                </div>
+              </div>
+              <span id="hubTopicCountBadge" class="px-2.5 py-1 rounded-lg bg-emerald-950 border border-emerald-500/50 text-emerald-300 font-arcade text-xs shrink-0">
+                300 Qs
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- BOTTOM BAR: CONTROLS SUMMARY & TIP OFF! BUTTON -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+          <div class="flex-1 rounded-2xl bg-[#0b101d] border border-slate-800 px-4 py-3 flex items-center text-xs sm:text-sm text-slate-300 leading-relaxed">
+            <div>
+              <span class="font-arcade text-amber-400 tracking-wider mr-1.5">CONTROLS:</span>
+              <span class="text-white font-bold">WASD / Arrows</span> Move •
+              <span class="text-white font-bold">SHIFT</span> Turbo •
+              <span class="text-white font-bold">SPACE</span> Shoot / Dunk / Block •
+              <span class="text-white font-bold">E</span> Pass / Steal •
+              <span class="text-white font-bold">SHIFT + E</span> Alley-Oop •
+              <span class="text-white font-bold">F / TAB</span> Switch Player •
+              <span class="text-white font-bold">P</span> Pause
+            </div>
+          </div>
+          <button id="startMatchBtn" class="tipoff-btn px-9 py-4 rounded-2xl font-arcade text-2xl sm:text-3xl text-white tracking-wider uppercase cursor-pointer shrink-0">
+            TIP OFF!
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================= -->
+    <!-- TEAM SELECTOR MODAL                                                     -->
+    <!-- ======================================================================= -->
+    <section id="teamSelectModal" class="hidden absolute inset-0 z-40 flex flex-col bg-[#080d18]/98 backdrop-blur-md p-4 sm:p-6">
+      <div class="max-w-7xl w-full mx-auto flex flex-col h-full">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 shrink-0">
+          <div>
+            <h2 id="teamSelectTitle" class="font-arcade text-2xl sm:text-4xl text-amber-400 tracking-wide uppercase">
+              SELECT YOUR 2026-27 NBA SQUAD (P1)
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-400 mt-0.5">
+              All 30 NBA franchises with authentic 2026-27 duos &amp; skill ratings
+            </p>
+          </div>
+          <div class="flex items-center gap-2.5">
+            <input
+              id="teamSearchInput"
+              type="text"
+              placeholder="Search team or player..."
+              class="w-56 sm:w-64 px-4 py-2.5 rounded-xl bg-[#0e1526] border border-slate-700 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-amber-400"
+            />
+            <button id="closeTeamSelectBtn" class="px-5 py-2.5 rounded-xl bg-[#131b2e] hover:bg-slate-800 border border-slate-600 font-arcade text-xs sm:text-sm text-white tracking-wider uppercase cursor-pointer">
+              CLOSE
+            </button>
+          </div>
+        </div>
+        <div id="teamGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 overflow-y-auto pr-2 pb-4 flex-1"></div>
+      </div>
+    </section>
+
+    <!-- ======================================================================= -->
+    <!-- OST PLAYBOOK TOPIC SELECTOR MODAL (PRE-GAME & MID-GAME)                 -->
+    <!-- ======================================================================= -->
+    <section id="topicSelectModal" class="hidden absolute inset-0 z-50 flex flex-col bg-[#080d18]/98 backdrop-blur-md p-4 sm:p-6">
+      <div class="max-w-6xl w-full mx-auto flex flex-col h-full">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 shrink-0">
+          <div>
+            <h2 class="font-arcade text-2xl sm:text-3xl text-emerald-400 tracking-wide uppercase">
+              SELECT ALGEBRA 1 OST PLAYBOOK TOPIC
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-400 mt-0.5">
+              300 Playbook-Style Questions across all 10 bold OST topics (30 questions per topic). Switch anytime!
+            </p>
+          </div>
+          <button id="closeTopicSelectBtn" class="px-5 py-2.5 rounded-xl bg-[#131b2e] hover:bg-slate-800 border border-slate-600 font-arcade text-xs sm:text-sm text-white tracking-wider uppercase cursor-pointer self-start sm:self-auto">
+            CLOSE
+          </button>
+        </div>
+
+        <div id="topicGrid" class="grid grid-cols-1 md:grid-cols-2 gap-3 overflow-y-auto pr-2 pb-4 flex-1"></div>
+      </div>
+    </section>
+
+    <!-- ======================================================================= -->
+    <!-- OST PLAYBOOK TIMEOUT MODAL (ZERO CLIPPING + VERTICAL FRACTIONS)         -->
+    <!-- ======================================================================= -->
+    <section id="mathModal" class="hidden absolute inset-0 z-40 flex items-center justify-center p-3 sm:p-5 bg-slate-950/92 backdrop-blur-md">
+      <div class="w-full max-w-3xl max-h-[92vh] overflow-y-auto rounded-2xl bg-[#0b101d] p-5 sm:p-6 border-2 border-cyan-400/70 shadow-2xl">
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3 mb-4">
+          <div class="min-w-0">
+            <span class="inline-block px-2.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 text-xs font-extrabold uppercase tracking-wider">
+              HEIGHTS ALGEBRA OST TIMEOUT
+            </span>
+            <h2 id="mathModalTopicTitle" class="font-arcade text-lg sm:text-2xl text-white mt-1 leading-snug">
+              OST PLAYBOOK CHALLENGE
+            </h2>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <span id="mathModalCounterBadge" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-xs font-extrabold uppercase text-amber-300">
+              Q1
+            </span>
+            <button id="mathSwitchTopicBtn" class="px-3 py-1 rounded-lg bg-[#0b2922] hover:bg-emerald-500/25 border border-emerald-400/70 text-xs font-extrabold uppercase text-emerald-300 cursor-pointer transition">
+              CHANGE TOPIC
+            </button>
+          </div>
+        </div>
+
+        <!-- QUESTION PROMPT + OPTIONAL VISUAL (TABLE / GRAPH / STEPS) -->
+        <div class="bg-[#070b14] border-2 border-slate-800 rounded-xl p-4 sm:p-5 mb-4">
+          <div id="mathProblemExpr" class="math-prose text-base sm:text-xl text-slate-100 font-semibold"></div>
+          <div id="mathVisualContainer" class="hidden mt-4 flex justify-center"></div>
+        </div>
+
+        <!-- 4 MULTIPLE CHOICE BUTTONS (AUTO 1-COL OR 2-COL BASED ON LENGTH) -->
+        <div id="mathChoicesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-4"></div>
+
+        <!-- FEEDBACK & NEXT BUTTON -->
+        <div id="mathFeedbackBox" class="hidden math-prose rounded-xl p-3.5 border text-sm font-semibold mb-3"></div>
+
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="text-xs text-slate-400">
+            <span class="text-emerald-400 font-bold">Correct:</span> Full Turbo + Streak Boost •
+            <span class="text-rose-400 font-bold">Wrong:</span> +1 Personal Foul (4 = Ejected, Both = Forfeit)
+          </div>
+          <button id="mathNextBtn" class="hidden tipoff-btn px-5 py-2.5 rounded-xl font-arcade text-base text-white tracking-wider cursor-pointer">
+            NEXT / CONTINUE →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================= -->
+    <!-- QUARTER / HALFTIME / FINAL SUMMARY MODAL                                -->
+    <!-- ======================================================================= -->
+    <section id="periodModal" class="hidden absolute inset-0 z-40 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md">
+      <div class="w-full max-w-lg rounded-2xl bg-[#0b101d] border-2 border-orange-500/60 p-6 text-center shadow-2xl">
+        <div id="periodBadge" class="inline-block px-3 py-1 rounded-full bg-orange-500/20 border border-orange-500/50 text-orange-300 text-xs font-extrabold uppercase tracking-wider mb-2">
+          END OF QUARTER 1
+        </div>
+        <h2 id="periodTitle" class="font-arcade text-3xl sm:text-4xl text-white mb-4">QUARTER BREAK</h2>
+
+        <div class="grid grid-cols-3 items-center gap-2 bg-[#070b14] border border-slate-800 rounded-xl p-4 mb-4">
+          <div>
+            <div id="periodPlayerName" class="font-arcade text-base text-cyan-400">LAKERS</div>
+            <div id="periodPlayerScore" class="font-arcade text-4xl text-white">0</div>
+          </div>
+          <div class="font-arcade text-2xl text-slate-500">VS</div>
+          <div>
+            <div id="periodCpuName" class="font-arcade text-base text-rose-400">CELTICS</div>
+            <div id="periodCpuScore" class="font-arcade text-4xl text-white">0</div>
+          </div>
+        </div>
+
+        <div id="periodStatsRow" class="grid grid-cols-3 gap-2 text-xs bg-[#080c16] border border-slate-800 rounded-xl p-3 mb-5">
+          <div>
+            <div class="text-slate-400">DUNKS</div>
+            <div id="statDunks" class="font-arcade text-xl text-amber-400">0</div>
+          </div>
+          <div>
+            <div class="text-slate-400">BLOCKS</div>
+            <div id="statBlocks" class="font-arcade text-xl text-cyan-400">0</div>
+          </div>
+          <div>
+            <div class="text-slate-400">OST SCORE</div>
+            <div id="statMath" class="font-arcade text-xl text-emerald-400">0 / 0</div>
+          </div>
+        </div>
+
+        <button id="periodContinueBtn" class="tipoff-btn w-full py-3 rounded-xl font-arcade text-xl text-white tracking-wider cursor-pointer">
+          START NEXT QUARTER
+        </button>
+      </div>
+    </section>
+
+    <!-- PAUSE OVERLAY -->
+    <section id="pauseModal" class="hidden absolute inset-0 z-40 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm">
+      <div class="w-full max-w-sm rounded-2xl bg-[#0b101d] border-2 border-amber-400/60 p-6 text-center shadow-2xl">
+        <h2 class="font-arcade text-3xl text-amber-400 mb-2">GAME PAUSED</h2>
+        <p class="text-xs text-slate-400 mb-5">Press P or click Resume to jump back onto the hardwood.</p>
+        <div class="flex flex-col gap-2.5">
+          <button id="resumeGameBtn" class="tipoff-btn py-2.5 rounded-xl font-arcade text-lg text-white tracking-wider cursor-pointer">
+            RESUME GAME
+          </button>
+          <button id="pauseChangeTopicBtn" class="py-2.5 rounded-xl bg-[#0b2922] hover:bg-emerald-500/25 border border-emerald-400/70 font-arcade text-base text-emerald-300 tracking-wider cursor-pointer">
+            CHANGE OST TOPIC
+          </button>
+          <button id="quitToMenuBtn" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 font-arcade text-base text-slate-200 tracking-wider cursor-pointer">
+            QUIT TO TEAM SELECT
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- BOTTOM QUICK CONTROLS BAR (IN-GAME REFERENCE) -->
+    <div id="bottomControlsBar" class="hidden absolute bottom-2 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 bg-[#070b14]/85 border border-slate-800 px-3.5 py-1 rounded-full text-[11px] text-slate-300 backdrop-blur-sm whitespace-nowrap">
+      <span class="text-amber-300 font-bold">TURBO:</span> Shift •
+      <span class="text-amber-300 font-bold">SHOOT/DUNK/BLOCK:</span> Space •
+      <span class="text-amber-300 font-bold">PASS/STEAL:</span> E •
+      <span class="text-amber-300 font-bold">ALLEY-OOP:</span> Shift+E •
+      <span class="text-amber-300 font-bold">SWITCH:</span> F / Tab
+    </div>
+  </main>
+
+  <!-- 300-PROBLEM OST PLAYBOOK BANK -->
+  <script src="/ost-problems.js"></script>
+
+  <script>
+    // =========================================================================
+    // 1. ALL 30 NBA TEAMS & UPDATED 2026-27 DUOS + 99 OVR SUPER TEAMS
+    // =========================================================================
+    const NBA_TEAMS = [
+      {
+        id: 'ATL', city: 'Atlanta', name: 'Hawks', primary: '#E03A3E', secondary: '#C1D32F',
+        players: [
+          { name: 'Jalen Johnson', num: 1, role: 'Athletic Point-Forward', speed: 88, three: 78, dunk: 93, def: 84, skin: '#a56b38', dunkStyle: 'windmill' },
+          { name: 'Nickeil Alexander-Walker', num: 7, role: 'Two-Way Combo Guard', speed: 87, three: 84, dunk: 78, def: 85, skin: '#8d5524', dunkStyle: 'one_hander' }
+        ]
+      },
+      {
+        id: 'BOS', city: 'Boston', name: 'Celtics', primary: '#007A33', secondary: '#BA9653',
+        players: [
+          { name: 'Jayson Tatum', num: 0, role: 'Two-Way Superstar Wing', speed: 87, three: 89, dunk: 89, def: 88, skin: '#9c6434', dunkStyle: 'tomahawk' },
+          { name: 'Paul George', num: 13, role: 'Smooth Two-Way All-Star', speed: 85, three: 88, dunk: 86, def: 87, skin: '#8b572a', dunkStyle: 'windmill' }
+        ]
+      },
+      {
+        id: 'BKN', city: 'Brooklyn', name: 'Nets', primary: '#1e293b', secondary: '#FFFFFF',
+        players: [
+          { name: 'Michael Porter Jr.', num: 17, role: '6-10 Perimeter Sniper', speed: 82, three: 89, dunk: 85, def: 76, skin: '#b57b4a', dunkStyle: 'tomahawk' },
+          { name: 'Julius Randle', num: 30, role: 'Bully-Ball Point-Forward', speed: 79, three: 77, dunk: 86, def: 78, skin: '#794821', dunkStyle: 'two_hand_slam' }
+        ]
+      },
+      {
+        id: 'CHA', city: 'Charlotte', name: 'Hornets', primary: '#1D1160', secondary: '#00788C',
+        players: [
+          { name: 'Brandon Miller', num: 24, role: 'Smooth Scoring Wing', speed: 86, three: 87, dunk: 87, def: 80, skin: '#7c4b25', dunkStyle: 'tomahawk' },
+          { name: 'Naz Reid', num: 11, role: 'Stretch-Five Fan Favorite', speed: 80, three: 84, dunk: 86, def: 82, skin: '#673a18', dunkStyle: 'two_hand_slam' }
+        ]
+      },
+      {
+        id: 'CHI', city: 'Chicago', name: 'Bulls', primary: '#CE1141', secondary: '#000000',
+        players: [
+          { name: 'Josh Giddey', num: 3, role: '6-8 Floor General', speed: 82, three: 76, dunk: 74, def: 76, skin: '#e8be98', dunkStyle: 'finger_roll' },
+          { name: 'Matas Buzelis', num: 14, role: 'High-Flying Rim Attacker', speed: 85, three: 78, dunk: 90, def: 81, skin: '#f1cbb0', dunkStyle: 'windmill' }
+        ]
+      },
+      {
+        id: 'CLE', city: 'Cleveland', name: 'Cavaliers', primary: '#860038', secondary: '#FDBB30',
+        players: [
+          { name: 'Donovan Mitchell', num: 45, role: 'Explosive Scoring Guard', speed: 92, three: 89, dunk: 94, def: 80, skin: '#764521', dunkStyle: 'windmill' },
+          { name: 'James Harden', num: 1, role: 'Step-Back Playmaker', speed: 81, three: 88, dunk: 68, def: 72, skin: '#643817', dunkStyle: 'finger_roll' }
+        ]
+      },
+      {
+        id: 'DAL', city: 'Dallas', name: 'Mavericks', primary: '#00538C', secondary: '#B8C4CA',
+        players: [
+          { name: 'Cooper Flagg', num: 32, role: 'Two-Way Phenom Forward', speed: 87, three: 81, dunk: 92, def: 90, skin: '#f1cbb0', dunkStyle: 'tomahawk' },
+          { name: 'Kyrie Irving', num: 11, role: 'Ankle-Breaking Handle', speed: 92, three: 92, dunk: 66, def: 72, skin: '#875427', dunkStyle: 'finger_roll' }
+        ]
+      },
+      {
+        id: 'DEN', city: 'Denver', name: 'Nuggets', primary: '#0E2240', secondary: '#FEC524',
+        players: [
+          { name: 'Nikola Jokic', num: 15, role: 'Point-Center Genius', speed: 74, three: 84, dunk: 65, def: 84, skin: '#f1cbb0', dunkStyle: 'finger_roll' },
+          { name: 'Jamal Murray', num: 27, role: 'Clutch Shot-Maker', speed: 86, three: 88, dunk: 78, def: 76, skin: '#a36b3c', dunkStyle: 'one_hander' }
+        ]
+      },
+      {
+        id: 'DET', city: 'Detroit', name: 'Pistons', primary: '#C8102E', secondary: '#1D42BA',
+        players: [
+          { name: 'Cade Cunningham', num: 2, role: 'All-NBA Floor General', speed: 85, three: 84, dunk: 82, def: 82, skin: '#8c582c', dunkStyle: 'tomahawk' },
+          { name: 'Jalen Duren', num: 0, role: 'Power Lob Finisher', speed: 81, three: 35, dunk: 94, def: 86, skin: '#593012', dunkStyle: 'two_hand_slam' }
+        ]
+      },
+      {
+        id: 'GSW', city: 'Golden State', name: 'Warriors', primary: '#1D428A', secondary: '#FFC72C',
+        players: [
+          { name: 'Stephen Curry', num: 30, role: 'Unlimited Range', speed: 91, three: 99, dunk: 46, def: 74, skin: '#c48b5a', dunkStyle: 'finger_roll' },
+          { name: 'Jimmy Butler', num: 10, role: 'Playoff Dawg', speed: 84, three: 76, dunk: 84, def: 90, skin: '#6b3e1b', dunkStyle: 'tomahawk' }
+        ]
+      },
+      {
+        id: 'HOU', city: 'Houston', name: 'Rockets', primary: '#CE1141', secondary: '#C4CED4',
+        players: [
+          { name: 'Kevin Durant', num: 7, role: '7-Foot Bucket Machine', speed: 84, three: 92, dunk: 88, def: 85, skin: '#6a3c1a', dunkStyle: 'tomahawk' },
+          { name: 'Alperen Sengun', num: 28, role: 'Post Playmaker', speed: 77, three: 68, dunk: 83, def: 82, skin: '#e8be98', dunkStyle: 'two_hand_slam' }
+        ]
+      },
+      {
+        id: 'IND', city: 'Indiana', name: 'Pacers', primary: '#002D62', secondary: '#FDBB30',
+        players: [
+          { name: 'Pascal Siakam', num: 43, role: 'Spin-Cycle Forward', speed: 85, three: 78, dunk: 88, def: 84, skin: '#542d10', dunkStyle: 'tomahawk' },
+          { name: 'Andrew Nembhard', num: 2, role: 'Clutch Two-Way Guard', speed: 87, three: 83, dunk: 74, def: 85, skin: '#9e6739', dunkStyle: 'one_hander' }
+        ]
+      },
+      {
+        id: 'LAC', city: 'LA', name: 'Clippers', primary: '#C8102E', secondary: '#1D428A',
+        players: [
+          { name: 'Darius Garland', num: 10, role: 'Shifty Guard', speed: 92, three: 89, dunk: 60, def: 71, skin: '#7c4b25', dunkStyle: 'finger_roll' },
+          { name: 'Brandon Ingram', num: 7, role: 'Lengthy Mid-Range Scorer', speed: 83, three: 82, dunk: 84, def: 79, skin: '#72421e', dunkStyle: 'tomahawk' }
+        ]
+      },
+      {
+        id: 'LAL', city: 'Los Angeles', name: 'Lakers', primary: '#552583', secondary: '#FDB927',
+        players: [
+          { name: 'Luka Doncic', num: 77, role: 'Offensive Maestro', speed: 83, three: 91, dunk: 74, def: 73, skin: '#f0c8a8', dunkStyle: 'one_hander' },
+          { name: 'Austin Reaves', num: 15, role: 'Crafty Shot-Maker', speed: 85, three: 86, dunk: 75, def: 76, skin: '#f2ccb2', dunkStyle: 'one_hander' }
+        ]
+      },
+      {
+        id: 'MEM', city: 'Memphis', name: 'Grizzlies', primary: '#5D76A9', secondary: '#12173F',
+        players: [
+          { name: 'Cameron Boozer', num: 12, role: 'Dominant Rookie Forward', speed: 82, three: 79, dunk: 90, def: 85, skin: '#b37948', dunkStyle: 'two_hand_slam' },
+          { name: 'Zach Edey', num: 14, role: '7-4 Paint Force', speed: 68, three: 45, dunk: 91, def: 89, skin: '#e8be98', dunkStyle: 'two_hand_slam' }
+        ]
+      },
+      {
+        id: 'MIA', city: 'Miami', name: 'Heat', primary: '#98002E', secondary: '#F9A01B',
+        players: [
+          { name: 'Giannis Antetokounmpo', num: 7, role: 'Unstoppable Freight Train', speed: 91, three: 64, dunk: 98, def: 94, skin: '#5e3414', dunkStyle: 'tomahawk' },
+          { name: 'Bam Adebayo', num: 13, role: 'Switch-Everything Anchor', speed: 84, three: 66, dunk: 90, def: 93, skin: '#643817', dunkStyle: 'two_hand_slam' }
+        ]
+      },
+      {
+        id: 'MIL', city: 'Milwaukee', name: 'Bucks', primary: '#00471B', secondary: '#EEE1C6',
+        players: [
+          { name: 'Tyler Herro', num: 11, role: 'Perimeter Sniper', speed: 86, three: 91, dunk: 65, def: 71, skin: '#f1cbb0', dunkStyle: 'finger_roll' },
+          { name: 'Myles Turner', num: 3, role: 'Shot-Blocking Stretch 5', speed: 76, three: 82, dunk: 86, def: 92, skin: '#673a18', dunkStyle: 'two_hand_slam' }
+        ]
+      },
+      {
+        id: 'MIN', city: 'Minnesota', name: 'Timberwolves', primary: '#0C2340', secondary: '#78BE20',
+        players: [
+          { name: 'Anthony Edwards', num: 5, role: 'Posterizer Superstar', speed: 93, three: 88, dunk: 97, def: 86, skin: '#673a18', dunkStyle: 'windmill' },
+          { name: 'LaMelo Ball', num: 1, role: 'Flashy Playmaker', speed: 89, three: 87, dunk: 77, def: 73, skin: '#b57b4a', dunkStyle: 'one_hander' }
+        ]
+      },
+      {
+        id: 'NOP', city: 'New Orleans', name: 'Pelicans', primary: '#0C2340', secondary: '#C8102E',
+        players: [
+          { name: 'Zion Williamson', num: 1, role: 'Human Highlight Dunker', speed: 88, three: 58, dunk: 98, def: 77, skin: '#693c19', dunkStyle: 'windmill' },
+          { name: 'Trey Murphy III', num: 25, role: 'High-Flying 3&D Wing', speed: 85, three: 88, dunk: 90, def: 82, skin: '#875327', dunkStyle: 'tomahawk' }
+        ]
+      },
+      {
+        id: 'NYK', city: 'New York', name: 'Knicks', primary: '#006BB6', secondary: '#F58426',
+        players: [
+          { name: 'Jalen Brunson', num: 11, role: 'Finals MVP Floor General', speed: 89, three: 90, dunk: 52, def: 74, skin: '#8b572a', dunkStyle: 'finger_roll' },
+          { name: 'Karl-Anthony Towns', num: 32, role: '7-Foot Sharpshooter', speed: 77, three: 89, dunk: 86, def: 80, skin: '#9d6637', dunkStyle: 'two_hand_slam' }
+        ]
+      },
+      {
+        id: 'OKC', city: 'Oklahoma City', name: 'Thunder', primary: '#007AC1', secondary: '#EF3B24',
+        players: [
+          { name: 'Shai Gilgeous-Alexander', num: 2, role: 'MVP Slasher & Mid-Range', speed: 92, three: 84, dunk: 85, def: 88, skin: '#895629', dunkStyle: 'one_hander' },
+          { name: 'Chet Holmgren', num: 7, role: 'Unicorn Rim Protector', speed: 79, three: 83, dunk: 89, def: 94, skin: '#f2ccb2', dunkStyle: 'two_hand_slam' }
+        ]
+      },
+      {
+        id: 'ORL', city: 'Orlando', name: 'Magic', primary: '#0077C0', secondary: '#C4CED4',
+        players: [
+          { name: 'Paolo Banchero', num: 5, role: 'All-Star Point Forward', speed: 84, three: 79, dunk: 90, def: 82, skin: '#9b6436', dunkStyle: 'tomahawk' },
+          { name: 'Franz Wagner', num: 22, role: 'Versatile Euro Wing', speed: 84, three: 81, dunk: 84, def: 85, skin: '#f0c8a8', dunkStyle: 'one_hander' }
+        ]
+      },
+      {
+        id: 'PHI', city: 'Philadelphia', name: '76ers', primary: '#006BB6', secondary: '#ED174C',
+        players: [
+          { name: 'LeBron James', num: 23, role: 'The King All-Around Icon', speed: 86, three: 83, dunk: 94, def: 85, skin: '#6b3e1b', dunkStyle: 'tomahawk' },
+          { name: 'Tyrese Maxey', num: 0, role: 'Lightning-Fast Guard', speed: 96, three: 90, dunk: 76, def: 77, skin: '#7b4922', dunkStyle: 'one_hander' }
+        ]
+      },
+      {
+        id: 'PHX', city: 'Phoenix', name: 'Suns', primary: '#1D1160', secondary: '#E56020',
+        players: [
+          { name: 'Devin Booker', num: 15, role: 'Pure Scoring Guard', speed: 88, three: 89, dunk: 79, def: 76, skin: '#b37948', dunkStyle: 'one_hander' },
+          { name: 'Jalen Green', num: 4, role: 'Explosive Rim Rocker', speed: 94, three: 82, dunk: 95, def: 74, skin: '#9c6434', dunkStyle: 'windmill' }
+        ]
+      },
+      {
+        id: 'POR', city: 'Portland', name: 'Trail Blazers', primary: '#E03A3E', secondary: '#000000',
+        players: [
+          { name: 'Ja Morant', num: 1, role: 'Skywalker Guard', speed: 96, three: 77, dunk: 97, def: 74, skin: '#865326', dunkStyle: 'windmill' },
+          { name: 'Damian Lillard', num: 0, role: 'Logo Three Legend', speed: 89, three: 93, dunk: 74, def: 70, skin: '#824f23', dunkStyle: 'one_hander' }
+        ]
+      },
+      {
+        id: 'SAC', city: 'Sacramento', name: 'Kings', primary: '#5A2D81', secondary: '#63727A',
+        players: [
+          { name: 'Zach LaVine', num: 8, role: 'Slam Dunk Champion', speed: 91, three: 87, dunk: 95, def: 73, skin: '#b37948', dunkStyle: 'windmill' },
+          { name: 'Domantas Sabonis', num: 11, role: 'Triple-Double Engine', speed: 77, three: 72, dunk: 83, def: 82, skin: '#f1cbb0', dunkStyle: 'two_hand_slam' }
+        ]
+      },
+      {
+        id: 'SAS', city: 'San Antonio', name: 'Spurs', primary: '#1e293b', secondary: '#C4CED4',
+        players: [
+          { name: 'Victor Wembanyama', num: 1, role: 'Alien 7-4 Phenom', speed: 83, three: 83, dunk: 96, def: 99, skin: '#784822', dunkStyle: 'two_hand_slam' },
+          { name: "De'Aaron Fox", num: 4, role: 'Fastest Guard in NBA', speed: 97, three: 82, dunk: 86, def: 83, skin: '#74431e', dunkStyle: 'tomahawk' }
+        ]
+      },
+      {
+        id: 'TOR', city: 'Toronto', name: 'Raptors', primary: '#CE1141', secondary: '#000000',
+        players: [
+          { name: 'Kawhi Leonard', num: 2, role: 'The Klaw Two-Way MVP', speed: 85, three: 88, dunk: 89, def: 95, skin: '#643817', dunkStyle: 'tomahawk' },
+          { name: 'Scottie Barnes', num: 4, role: 'All-Around Point Forward', speed: 85, three: 77, dunk: 89, def: 87, skin: '#71411d', dunkStyle: 'windmill' }
+        ]
+      },
+      {
+        id: 'UTA', city: 'Utah', name: 'Jazz', primary: '#002B5C', secondary: '#F9A01B',
+        players: [
+          { name: 'Lauri Markkanen', num: 23, role: '7-Foot Finisher & Sniper', speed: 81, three: 88, dunk: 87, def: 77, skin: '#f2ccb2', dunkStyle: 'tomahawk' },
+          { name: 'Jaren Jackson Jr.', num: 20, role: 'DPOY Stretch Big', speed: 80, three: 80, dunk: 88, def: 95, skin: '#6a3c19', dunkStyle: 'two_hand_slam' }
+        ]
+      },
+      {
+        id: 'WAS', city: 'Washington', name: 'Wizards', primary: '#002B5C', secondary: '#E31837',
+        players: [
+          { name: 'Trae Young', num: 11, role: 'Deep 3PT Maestro', speed: 91, three: 91, dunk: 42, def: 64, skin: '#8d5524', dunkStyle: 'finger_roll' },
+          { name: 'Anthony Davis', num: 3, role: 'Two-Way Dominant Big', speed: 80, three: 64, dunk: 93, def: 96, skin: '#74431f', dunkStyle: 'two_hand_slam' }
+        ]
+      },
+      {
+        id: 'HTL', city: 'Heights', name: 'Legends (99 OVR)', primary: '#D97706', secondary: '#FEF08A',
+        players: [
+          { name: 'Coleman Tokar', num: 1, role: '99 OVR Super-All-Around', speed: 99, three: 99, dunk: 99, def: 99, skin: '#f1cbb0', dunkStyle: 'windmill' },
+          { name: 'James Kravitz', num: 24, role: '99 OVR Towering Phenom', speed: 99, three: 99, dunk: 99, def: 99, skin: '#e8be98', dunkStyle: 'tomahawk', heightScale: 1.24 }
+        ]
+      },
+      {
+        id: 'ALG', city: 'Algebra', name: 'Titans (99 OVR)', primary: '#0284C7', secondary: '#BAE6FD',
+        players: [
+          { name: 'Kyle Baker', num: 7, role: '99 OVR Unstoppable Guard', speed: 99, three: 99, dunk: 99, def: 99, skin: '#f0c8a8', dunkStyle: 'windmill' },
+          { name: 'James Kravitz', num: 24, role: '99 OVR Towering Phenom', speed: 99, three: 99, dunk: 99, def: 99, skin: '#e8be98', dunkStyle: 'tomahawk', heightScale: 1.24 }
+        ]
+      }
+    ];
+
+    // =========================================================================
+    // 2. GAME CONFIGURATION & GLOBAL STATE
+    // =========================================================================
+    const CONFIG = {
+      QUARTER_DURATION: 120,
+      MATH_INTERVAL: 30,
+      BASE_SPEED: 255,
+      TURBO_MULT: 1.44,
+      TURBO_DRAIN_RATE: 34,
+      TURBO_REGEN_RATE: 15,
+      GRAVITY: 1350,
+      SHOT_JUMP_VEL: 430,
+      DUNK_JUMP_VEL: 515,
+      DUNK_RANGE: 225,
+      DUNK_MIN_RATING: 74,
+      THREE_PT_RADIUS: 315,
+      PLAYER_SCALE: 0.88,
+      HEATING_UP_REQ: 2,
+      ON_FIRE_REQ: 3,
+      BLOCK_RANGE: 64,
+      BLOCK_Z_TOLERANCE: 52,
+      SHOT_TUNING: {
+        dunkBase: 0.72,
+        layupBase: 0.60,
+        midBase: 0.34,
+        threeBase: 0.25,
+        onFireBoost: 0.16,
+        contestPenaltyMax: 0.22
+      },
+      COURT: {
+        LEFT_HOOP_X: 100,
+        RIGHT_HOOP_X: 1180,
+        HOOP_Y: 365,
+        TOP_Y: 102,
+        BOTTOM_Y: 632,
+        LEFT_X: 22,
+        RIGHT_X: 1258
+      }
+    };
+
+    const state = {
+      mode: 'MENU', // MENU | PLAYING | PAUSED | MATH_TIMEOUT | PERIOD_BREAK | GAME_OVER
+      playerTeamId: 'LAL',
+      cpuTeamId: 'BOS',
+      selectingSide: 'player',
+      teamSearchQuery: '',
+      cpuDiff: 'allstar', // rookie | allstar | legend
+      ostTopic: 'ALL',    // 'ALL' or one of window.OST_TOPICS ids
+      topicModalReturnMode: 'MENU',
+      soundOn: true,
+
+      quarter: 1,
+      quarterLen: CONFIG.QUARTER_DURATION,
+      clock: CONFIG.QUARTER_DURATION,
+      mathTimer: CONFIG.MATH_INTERVAL,
+
+      playerScore: 0,
+      cpuScore: 0,
+      playerTurbo: 100,
+      cpuTurbo: 100,
+      playerStreak: 0,
+      cpuStreak: 0,
+
+      dunksCount: 0,
+      blocksCount: 0,
+      mathCorrect: 0,
+      mathTotal: 0,
+
+      controlledIdx: 0,
+      graceTimer: 0,
+      rimFlexLeft: 0,
+      rimFlexRight: 0,
+      shakeTimer: 0,
+      announcerTimer: 0,
+      forfeitLoss: false,
+      pendingQuarterEnd: false,
+
+      currentProblem: null,
+      mathAnswered: false,
+      topicQueues: {},
+
+      players: [],
+      ball: {
+        owner: 0,
+        inFlight: false,
+        flightType: null,
+        shooterIdx: -1,
+        points: 2,
+        willMake: false,
+        x: 420,
+        y: 365,
+        z: 36,
+        startX: 0,
+        startY: 0,
+        startZ: 0,
+        targetX: 0,
+        targetY: 0,
+        targetZ: 0,
+        flightTime: 0,
+        flightDuration: 0.5
+      },
+      particles: []
+    };
+
+    const keys = {};
+
+    // =========================================================================
+    // 3. WEB AUDIO SYNTHESIZER (NO EXTERNAL URLS)
+    // =========================================================================
+    let audioCtx = null;
+    function playTone(freq, type = 'sine', duration = 0.12, gainVal = 0.14, slideFreq = null) {
+      if (!state.soundOn) return;
+      try {
+        if (!audioCtx) {
+          const Ctx = window.AudioContext || window.webkitAudioContext;
+          if (Ctx) audioCtx = new Ctx();
+        }
+        if (!audioCtx) return;
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        if (slideFreq) {
+          osc.frequency.exponentialRampToValueAtTime(slideFreq, audioCtx.currentTime + duration);
+        }
+        gain.gain.setValueAtTime(gainVal, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (err) {}
+    }
+
+    function spawnParticles(x, y, count = 14, color = '#fb923c', speed = 16, size = 4) {
+      for (let i = 0; i < count; i++) {
+        const ang = Math.random() * Math.PI * 2;
+        const spd = (0.35 + Math.random() * 0.85) * speed * 14;
+        state.particles.push({
+          x,
+          y,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd - 60,
+          color,
+          size: size * (0.6 + Math.random() * 0.7),
+          life: 0.35 + Math.random() * 0.3,
+          maxLife: 0.65
+        });
+      }
+    }
+
+    function triggerAnnouncer(text, duration = 1.25) {
+      const banner = document.getElementById('announcerBanner');
+      const label = document.getElementById('announcerText');
+      if (!banner || !label) return;
+      label.textContent = text;
+      banner.classList.remove('hidden');
+      state.announcerTimer = duration;
+    }
+
+    // =========================================================================
+    // 4. MATH FORMATTER (VERTICAL FRACTIONS, SUPERSCRIPT EXPONENTS, VISUALS)
+    // =========================================================================
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    function parseBraceGroup(str, startIdx) {
+      if (str[startIdx] !== '{') return { content: '', nextIdx: startIdx };
+      let depth = 0;
+      let i = startIdx;
+      while (i < str.length) {
+        if (str[i] === '{') depth++;
+        else if (str[i] === '}') {
+          depth--;
+          if (depth === 0) {
+            return { content: str.slice(startIdx + 1, i), nextIdx: i + 1 };
+          }
+        }
+        i++;
+      }
+      return { content: str.slice(startIdx + 1), nextIdx: str.length };
+    }
+
+    function renderLatexInline(expr) {
+      let out = '';
+      let i = 0;
+      while (i < expr.length) {
+        if (expr.startsWith('\\frac', i)) {
+          i += 5;
+          const numGrp = parseBraceGroup(expr, i);
+          i = numGrp.nextIdx;
+          const denGrp = parseBraceGroup(expr, i);
+          i = denGrp.nextIdx;
+          out += `<span class="m-frac"><span class="m-num">${renderLatexInline(numGrp.content)}</span><span class="m-den">${renderLatexInline(denGrp.content)}</span></span>`;
+        } else if (expr[i] === '^' && expr[i + 1] === '{') {
+          const supGrp = parseBraceGroup(expr, i + 1);
+          i = supGrp.nextIdx;
+          out += `<sup class="m-sup">${renderLatexInline(supGrp.content)}</sup>`;
+        } else if (expr.startsWith('\\le', i)) {
+          out += '&le;';
+          i += 3;
+        } else if (expr.startsWith('\\ge', i)) {
+          out += '&ge;';
+          i += 3;
+        } else if (expr.startsWith('\\%', i)) {
+          out += '%';
+          i += 2;
+        } else if (expr.startsWith('\\{', i)) {
+          out += '{';
+          i += 2;
+        } else if (expr.startsWith('\\}', i)) {
+          out += '}';
+          i += 2;
+        } else if (expr[i] === '-') {
+          out += '&minus;';
+          i++;
+        } else if (expr[i] === '<') {
+          out += '&lt;';
+          i++;
+        } else if (expr[i] === '>') {
+          out += '&gt;';
+          i++;
+        } else if (expr[i] === '&') {
+          out += '&amp;';
+          i++;
+        } else {
+          out += expr[i];
+          i++;
+        }
+      }
+      return out;
+    }
+
+    function formatMathHTML(text) {
+      if (!text) return '';
+      let result = '';
+      let idx = 0;
+      while (idx < text.length) {
+        const openIdx = text.indexOf('[[', idx);
+        if (openIdx === -1) {
+          result += escapeHtml(text.slice(idx));
+          break;
+        }
+        if (openIdx > idx) {
+          result += escapeHtml(text.slice(idx, openIdx));
+        }
+        const closeIdx = text.indexOf(']]', openIdx + 2);
+        if (closeIdx === -1) {
+          result += escapeHtml(text.slice(openIdx));
+          break;
+        }
+        const mathRaw = text.slice(openIdx + 2, closeIdx);
+        result += `<span class="m-expr">${renderLatexInline(mathRaw)}</span>`;
+        idx = closeIdx + 2;
+      }
+      return result;
+    }
+
+    function plainTextLength(text) {
+      return String(text).replace(/\[\[|\]\]|\\frac|\\le|\\ge|\\|\{|\}/g, '').length;
+    }
+
+    function renderVisualHTML(visual) {
+      if (!visual) return '';
+
+      if (visual.type === 'table') {
+        const ths = visual.headers.map(h =>
+          `<th class="px-3 py-1.5 text-xs font-extrabold uppercase tracking-wider text-cyan-300 border border-slate-700 bg-slate-900/90">${formatMathHTML(h)}</th>`
+        ).join('');
+        const trs = visual.rows.map(row =>
+          `<tr>${row.map((cell, ci) =>
+            `<td class="px-3 py-1.5 text-xs sm:text-sm font-semibold border border-slate-700/90 ${ci === 0 ? 'text-slate-200 bg-slate-900/50' : 'text-amber-200 bg-[#0b1222]'} text-center whitespace-nowrap">${formatMathHTML(cell)}</td>`
+          ).join('')}</tr>`
+        ).join('');
+        return `<table class="border-collapse rounded-lg overflow-hidden shadow-md">${ths ? `<thead><tr>${ths}</tr></thead>` : ''}<tbody>${trs}</tbody></table>`;
+      }
+
+      if (visual.type === 'steps') {
+        const rows = visual.steps.map(st => `
+          <div class="flex items-center gap-3 px-3 py-2 rounded-lg bg-[#0b1222] border border-slate-800">
+            <span class="px-2 py-0.5 rounded bg-slate-800 text-amber-300 text-xs font-extrabold uppercase shrink-0 min-w-[64px] text-center">${escapeHtml(st.label)}</span>
+            <div class="text-sm sm:text-base text-white font-semibold">${formatMathHTML(st.expr)}</div>
+          </div>
+        `).join('');
+        return `<div class="w-full max-w-md flex flex-col gap-1.5">${rows}</div>`;
+      }
+
+      if (visual.type === 'boxplot') {
+        const W = 460, H = visual.plots.length * 46 + 40;
+        const padL = 78, padR = 22;
+        const scaleX = (v) => padL + ((v - visual.axisMin) / (visual.axisMax - visual.axisMin)) * (W - padL - padR);
+        let svg = `<svg viewBox="0 0 ${W} ${H}" class="w-full max-w-lg bg-[#0b1222] rounded-xl border border-slate-800">`;
+        const axisY = H - 24;
+        svg += `<line x1="${padL}" y1="${axisY}" x2="${W - padR}" y2="${axisY}" stroke="#64748b" stroke-width="2"/>`;
+        for (let t = visual.axisMin; t <= visual.axisMax; t += visual.step) {
+          const x = scaleX(t);
+          svg += `<line x1="${x}" y1="${axisY - 4}" x2="${x}" y2="${axisY + 4}" stroke="#94a3b8" stroke-width="1.5"/>`;
+          svg += `<text x="${x}" y="${axisY + 16}" fill="#cbd5e1" font-size="10" font-weight="700" text-anchor="middle">${t}</text>`;
+        }
+        visual.plots.forEach((p, idx) => {
+          const cy = 26 + idx * 44;
+          const xMin = scaleX(p.min), xQ1 = scaleX(p.q1), xMed = scaleX(p.med), xQ3 = scaleX(p.q3), xMax = scaleX(p.max);
+          svg += `<text x="10" y="${cy + 4}" fill="${p.color}" font-size="11" font-weight="800">${escapeHtml(p.label)}</text>`;
+          svg += `<line x1="${xMin}" y1="${cy}" x2="${xQ1}" y2="${cy}" stroke="${p.color}" stroke-width="2"/>`;
+          svg += `<line x1="${xQ3}" y1="${cy}" x2="${xMax}" y2="${cy}" stroke="${p.color}" stroke-width="2"/>`;
+          svg += `<line x1="${xMin}" y1="${cy - 8}" x2="${xMin}" y2="${cy + 8}" stroke="${p.color}" stroke-width="2"/>`;
+          svg += `<line x1="${xMax}" y1="${cy - 8}" x2="${xMax}" y2="${cy + 8}" stroke="${p.color}" stroke-width="2"/>`;
+          svg += `<rect x="${xQ1}" y="${cy - 11}" width="${Math.max(4, xQ3 - xQ1)}" height="22" fill="${p.color}33" stroke="${p.color}" stroke-width="2"/>`;
+          svg += `<line x1="${xMed}" y1="${cy - 11}" x2="${xMed}" y2="${cy + 11}" stroke="#ffffff" stroke-width="2.5"/>`;
+        });
+        svg += `</svg>`;
+        return svg;
+      }
+
+      if (visual.type === 'dotplot') {
+        const W = 480, H = 138;
+        const colW = (W - 30) / 2;
+        let svg = `<svg viewBox="0 0 ${W} ${H}" class="w-full max-w-lg bg-[#0b1222] rounded-xl border border-slate-800">`;
+        visual.plots.forEach((p, idx) => {
+          const ox = 10 + idx * (colW + 10);
+          const pad = 16;
+          const axisY = H - 24;
+          svg += `<text x="${ox + colW / 2}" y="18" fill="${p.color}" font-size="12" font-weight="800" text-anchor="middle">${escapeHtml(p.label)}</text>`;
+          svg += `<line x1="${ox + pad}" y1="${axisY}" x2="${ox + colW - pad}" y2="${axisY}" stroke="#64748b" stroke-width="2"/>`;
+          const span = visual.axisMax - visual.axisMin;
+          for (let v = visual.axisMin; v <= visual.axisMax; v++) {
+            const x = ox + pad + ((v - visual.axisMin) / span) * (colW - pad * 2);
+            svg += `<line x1="${x}" y1="${axisY - 3}" x2="${x}" y2="${axisY + 3}" stroke="#94a3b8" stroke-width="1.5"/>`;
+            svg += `<text x="${x}" y="${axisY + 14}" fill="#cbd5e1" font-size="9" font-weight="700" text-anchor="middle">${v}</text>`;
+            const cnt = p.counts[v] || 0;
+            for (let d = 0; d < cnt; d++) {
+              svg += `<circle cx="${x}" cy="${axisY - 10 - d * 12}" r="4.2" fill="${p.color}"/>`;
+            }
+          }
+        });
+        svg += `</svg>`;
+        return svg;
+      }
+
+      if (visual.type === 'histogram') {
+        const W = 380, H = 150;
+        const padL = 40, padR = 16, padT = 18, padB = 28;
+        const plotW = W - padL - padR, plotH = H - padT - padB;
+        let svg = `<svg viewBox="0 0 ${W} ${H}" class="w-full max-w-sm bg-[#0b1222] rounded-xl border border-slate-800">`;
+        svg += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${H - padB}" stroke="#64748b" stroke-width="2"/>`;
+        svg += `<line x1="${padL}" y1="${H - padB}" x2="${W - padR}" y2="${H - padB}" stroke="#64748b" stroke-width="2"/>`;
+        const bw = plotW / visual.bins.length;
+        visual.bins.forEach((b, i) => {
+          const bh = (b.v / visual.yMax) * plotH;
+          const x = padL + i * bw + 4;
+          const y = H - padB - bh;
+          svg += `<rect x="${x}" y="${y}" width="${bw - 8}" height="${bh}" fill="#38bdf8AA" stroke="#38bdf8" stroke-width="1.5"/>`;
+          svg += `<text x="${x + (bw - 8) / 2}" y="${H - padB + 14}" fill="#cbd5e1" font-size="10" font-weight="700" text-anchor="middle">${escapeHtml(b.l)}</text>`;
+          svg += `<text x="${x + (bw - 8) / 2}" y="${y - 4}" fill="#facc15" font-size="10" font-weight="700" text-anchor="middle">${b.v}</text>`;
+        });
+        svg += `</svg>`;
+        return svg;
+      }
+
+      if (visual.type === 'graph') {
+        const W = 280, H = 200;
+        const padL = 34, padR = 14, padT = 12, padB = 26;
+        const plotW = W - padL - padR, plotH = H - padT - padB;
+        const sx = (x) => padL + ((x - visual.xMin) / (visual.xMax - visual.xMin)) * plotW;
+        const sy = (y) => padT + (1 - (y - visual.yMin) / (visual.yMax - visual.yMin)) * plotH;
+        let svg = `<svg viewBox="0 0 ${W} ${H}" class="w-full max-w-[300px] bg-[#0b1222] rounded-xl border border-slate-800">`;
+        svg += `<defs><clipPath id="plotClip"><rect x="${padL}" y="${padT}" width="${plotW}" height="${plotH}"/></clipPath></defs>`;
+
+        for (let gx = visual.xMin; gx <= visual.xMax; gx += visual.xStep) {
+          const x = sx(gx);
+          svg += `<line x1="${x}" y1="${padT}" x2="${x}" y2="${H - padB}" stroke="${gx === 0 ? '#94a3b8' : '#1e293b'}" stroke-width="${gx === 0 ? 1.8 : 1}"/>`;
+          svg += `<text x="${x}" y="${H - padB + 13}" fill="#94a3b8" font-size="9" font-weight="700" text-anchor="middle">${gx}</text>`;
+        }
+        for (let gy = visual.yMin; gy <= visual.yMax; gy += visual.yStep) {
+          const y = sy(gy);
+          svg += `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="${gy === 0 ? '#94a3b8' : '#1e293b'}" stroke-width="${gy === 0 ? 1.8 : 1}"/>`;
+          svg += `<text x="${padL - 5}" y="${y + 3}" fill="#94a3b8" font-size="9" font-weight="700" text-anchor="end">${gy}</text>`;
+        }
+
+        svg += `<g clip-path="url(#plotClip)">`;
+        if (visual.lines) {
+          visual.lines.forEach(ln => {
+            const y1 = ln.m * visual.xMin + ln.b;
+            const y2 = ln.m * visual.xMax + ln.b;
+            svg += `<line x1="${sx(visual.xMin)}" y1="${sy(y1)}" x2="${sx(visual.xMax)}" y2="${sy(y2)}" stroke="${ln.color || '#38bdf8'}" stroke-width="2.4"/>`;
+          });
+        }
+        if (visual.quads) {
+          visual.quads.forEach(q => {
+            let pts = [];
+            for (let k = 0; k <= 40; k++) {
+              const xv = visual.xMin + (k / 40) * (visual.xMax - visual.xMin);
+              const yv = q.a * xv * xv + q.b * xv + q.c;
+              pts.push(`${sx(xv).toFixed(1)},${sy(yv).toFixed(1)}`);
+            }
+            svg += `<polyline points="${pts.join(' ')}" fill="none" stroke="${q.color || '#f97316'}" stroke-width="2.4"/>`;
+          });
+        }
+        if (visual.exps) {
+          visual.exps.forEach(ex => {
+            let pts = [];
+            for (let k = 0; k <= 40; k++) {
+              const xv = visual.xMin + (k / 40) * (visual.xMax - visual.xMin);
+              const yv = ex.a * Math.pow(ex.base, xv);
+              pts.push(`${sx(xv).toFixed(1)},${sy(yv).toFixed(1)}`);
+            }
+            svg += `<polyline points="${pts.join(' ')}" fill="none" stroke="${ex.color || '#ec4899'}" stroke-width="2.4"/>`;
+          });
+        }
+        if (visual.dots) {
+          visual.dots.forEach(d => {
+            svg += `<circle cx="${sx(d[0])}" cy="${sy(d[1])}" r="3.6" fill="#facc15" stroke="#0f172a" stroke-width="1"/>`;
+          });
+        }
+        svg += `</g></svg>`;
+        return svg;
+      }
+
+      return '';
+    }
+
+    // =========================================================================
+    // 5. TEAM, TOPIC & PREFERENCES HELPERS
+    // =========================================================================
+    function getTeamById(id) {
+      return NBA_TEAMS.find(t => t.id === id) || NBA_TEAMS[0];
+    }
+
+    function getTopicMeta(topicId) {
+      if (topicId === 'ALL') {
+        return {
+          id: 'ALL',
+          title: 'All OST Topics (Mixed)',
+          shortTitle: 'All Topics',
+          subtitle: 'All 10 Playbook Sheets • 300 Total Questions',
+          count: (window.OST_PROBLEMS || []).length,
+          badgeColor: '#10b981'
+        };
+      }
+      const t = (window.OST_TOPICS || []).find(x => x.id === topicId) || (window.OST_TOPICS || [])[0];
+      const count = (window.OST_PROBLEMS || []).filter(p => p.topic === t.id).length;
+      return { ...t, count };
+    }
+
+    function savePreferences() {
+      try {
+        localStorage.setItem('nba_jam_2026_prefs', JSON.stringify({
+          playerTeamId: state.playerTeamId,
+          cpuTeamId: state.cpuTeamId,
+          cpuDiff: state.cpuDiff,
+          ostTopic: state.ostTopic,
+          soundOn: state.soundOn
+        }));
+      } catch (e) {}
+    }
+
+    function loadPreferences() {
+      try {
+        const raw = localStorage.getItem('nba_jam_2026_prefs');
+        if (!raw) return;
+        const p = JSON.parse(raw);
+        if (p.playerTeamId && NBA_TEAMS.some(t => t.id === p.playerTeamId)) state.playerTeamId = p.playerTeamId;
+        if (p.cpuTeamId && NBA_TEAMS.some(t => t.id === p.cpuTeamId)) state.cpuTeamId = p.cpuTeamId;
+        if (['rookie', 'allstar', 'legend'].includes(p.cpuDiff)) state.cpuDiff = p.cpuDiff;
+        if (p.ostTopic === 'ALL' || (window.OST_TOPICS || []).some(t => t.id === p.ostTopic)) {
+          state.ostTopic = p.ostTopic;
+        }
+        if (typeof p.soundOn === 'boolean') state.soundOn = p.soundOn;
+      } catch (e) {}
+    }
+
+    function refreshMenuUI() {
+      const pTeam = getTeamById(state.playerTeamId);
+      const cTeam = getTeamById(state.cpuTeamId);
+
+      const pBadge = document.getElementById('hubPlayerBadge');
+      pBadge.textContent = pTeam.id;
+      pBadge.style.background = pTeam.primary;
+      document.getElementById('hubPlayerTeamName').textContent = `${pTeam.city} ${pTeam.name}`.toUpperCase();
+      document.getElementById('hubPlayerDuoNames').textContent = `${pTeam.players[0].name} (#${pTeam.players[0].num}) • ${pTeam.players[1].name} (#${pTeam.players[1].num})`;
+
+      document.getElementById('hubPlayerRoster').innerHTML = pTeam.players.map(pl => `
+        <div class="rounded-lg bg-[#0d1322] border border-slate-800/80 p-2.5">
+          <div class="font-bold text-white text-xs sm:text-sm truncate">${pl.name}</div>
+          <div class="text-[11px] font-semibold text-amber-400 truncate mt-0.5">${pl.role}</div>
+          <div class="text-[11px] text-slate-300 mt-1.5 font-medium">
+            SPD ${pl.speed} • 3PT ${pl.three} • DNK ${pl.dunk} • DEF ${pl.def}
+          </div>
+        </div>
+      `).join('');
+
+      const cBadge = document.getElementById('hubCpuBadge');
+      cBadge.textContent = cTeam.id;
+      cBadge.style.background = cTeam.primary;
+      document.getElementById('hubCpuTeamName').textContent = `${cTeam.city} ${cTeam.name}`.toUpperCase();
+      document.getElementById('hubCpuDuoNames').textContent = `${cTeam.players[0].name} (#${cTeam.players[0].num}) • ${cTeam.players[1].name} (#${cTeam.players[1].num})`;
+
+      document.getElementById('hubCpuRoster').innerHTML = cTeam.players.map(pl => `
+        <div class="rounded-lg bg-[#0d1322] border border-slate-800/80 p-2.5">
+          <div class="font-bold text-white text-xs sm:text-sm truncate">${pl.name}</div>
+          <div class="text-[11px] font-semibold text-amber-400 truncate mt-0.5">${pl.role}</div>
+          <div class="text-[11px] text-slate-300 mt-1.5 font-medium">
+            SPD ${pl.speed} • 3PT ${pl.three} • DNK ${pl.dunk} • DEF ${pl.def}
+          </div>
+        </div>
+      `).join('');
+
+      document.querySelectorAll('.cpu-diff-btn').forEach(btn => {
+        const active = btn.dataset.cpu === state.cpuDiff;
+        btn.className = `cpu-diff-btn py-3 px-2 rounded-xl font-arcade text-xs sm:text-sm tracking-wider uppercase border transition cursor-pointer ${
+          active
+            ? 'bg-[#0c2334] border-sky-400 text-sky-300 shadow-[0_0_15px_rgba(56,189,248,0.2)]'
+            : 'bg-[#080c16] border-slate-800 text-slate-300 hover:border-slate-600'
+        }`;
+      });
+
+      const topicMeta = getTopicMeta(state.ostTopic);
+      document.getElementById('hubTopicTitle').textContent = topicMeta.title.toUpperCase();
+      document.getElementById('hubTopicSubtitle').textContent = topicMeta.subtitle;
+      document.getElementById('hubTopicCountBadge').textContent = `${topicMeta.count} Qs`;
+
+      document.getElementById('toggleSoundBtn').textContent = state.soundOn ? 'SFX: ON' : 'SFX: OFF';
+    }
+
+    function openTeamSelectModal(side) {
+      state.selectingSide = side;
+      state.teamSearchQuery = '';
+      document.getElementById('teamSearchInput').value = '';
+      document.getElementById('teamSelectTitle').textContent =
+        side === 'player' ? 'SELECT YOUR 2026-27 NBA SQUAD (P1)' : 'SELECT OPPONENT NBA SQUAD (CPU)';
+      renderTeamSelectGrid();
+      document.getElementById('teamSelectModal').classList.remove('hidden');
+      document.getElementById('teamSearchInput').focus();
+    }
+
+    function renderTeamSelectGrid() {
+      const q = state.teamSearchQuery.trim().toLowerCase();
+      const currentSelectedId = state.selectingSide === 'player' ? state.playerTeamId : state.cpuTeamId;
+
+      const filtered = NBA_TEAMS.filter(t => {
+        if (!q) return true;
+        return (
+          t.city.toLowerCase().includes(q) ||
+          t.name.toLowerCase().includes(q) ||
+          t.id.toLowerCase().includes(q) ||
+          t.players[0].name.toLowerCase().includes(q) ||
+          t.players[1].name.toLowerCase().includes(q)
+        );
+      });
+
+      const grid = document.getElementById('teamGrid');
+      grid.innerHTML = filtered.map(t => {
+        const isSelected = t.id === currentSelectedId;
+        const p0Last = t.players[0].name.split(' ').pop();
+        const p1Last = t.players[1].name.split(' ').pop();
+        return `
+          <button
+            data-team-id="${t.id}"
+            class="team-card-btn text-left rounded-2xl p-4 transition cursor-pointer border-2 ${
+              isSelected
+                ? 'bg-[#171822] border-amber-400 shadow-[0_0_20px_rgba(250,204,21,0.18)]'
+                : 'bg-[#0c1220] border-slate-800 hover:border-slate-600'
+            }"
+          >
+            <div class="flex items-center gap-3.5 mb-3">
+              <div class="w-12 h-12 rounded-xl flex items-center justify-center font-arcade text-base text-white border border-white/70 shrink-0 shadow" style="background:${t.primary};">
+                ${t.id}
+              </div>
+              <div class="min-w-0">
+                <div class="font-arcade text-lg text-white uppercase truncate">${t.city} ${t.name}</div>
+                <div class="text-xs text-slate-300 truncate mt-0.5">${t.players[0].name} &amp; ${t.players[1].name}</div>
+              </div>
+            </div>
+            <div class="rounded-xl bg-[#070b14] border border-slate-800/90 px-3 py-2 flex items-center justify-between gap-2 text-[11px] text-slate-300">
+              <span class="truncate"><strong class="text-white">${p0Last}:</strong> 3PT ${t.players[0].three} | DNK ${t.players[0].dunk}</span>
+              <span class="truncate"><strong class="text-white">${p1Last}:</strong> 3PT ${t.players[1].three} | DNK ${t.players[1].dunk}</span>
+            </div>
+          </button>
+        `;
+      }).join('');
+
+      grid.querySelectorAll('.team-card-btn').forEach(card => {
+        card.addEventListener('click', () => {
+          const pickedId = card.dataset.teamId;
+          if (state.selectingSide === 'player') {
+            state.playerTeamId = pickedId;
+          } else {
+            state.cpuTeamId = pickedId;
+          }
+          playTone(540, 'sine', 0.08, 0.1, 720);
+          savePreferences();
+          refreshMenuUI();
+          document.getElementById('teamSelectModal').classList.add('hidden');
+        });
+      });
+    }
+
+    // =========================================================================
+    // 6. OST TOPIC SELECTOR MODAL & 300-PROBLEM DECK MANAGER
+    // =========================================================================
+    function openTopicSelectModal(returnMode) {
+      state.topicModalReturnMode = returnMode;
+      if (returnMode === 'PLAYING') {
+        state.mode = 'PAUSED';
+      } else if (returnMode === 'PAUSE_MODAL') {
+        document.getElementById('pauseModal').classList.add('hidden');
+      }
+      renderTopicGrid();
+      document.getElementById('topicSelectModal').classList.remove('hidden');
+    }
+
+    function closeTopicSelectModal() {
+      document.getElementById('topicSelectModal').classList.add('hidden');
+      if (state.topicModalReturnMode === 'PLAYING') {
+        state.mode = 'PLAYING';
+      } else if (state.topicModalReturnMode === 'PAUSE_MODAL') {
+        document.getElementById('pauseModal').classList.remove('hidden');
+      }
+    }
+
+    function renderTopicGrid() {
+      const allTopics = [getTopicMeta('ALL'), ...(window.OST_TOPICS || []).map(t => getTopicMeta(t.id))];
+      const grid = document.getElementById('topicGrid');
+
+      grid.innerHTML = allTopics.map(t => {
+        const active = t.id === state.ostTopic;
+        return `
+          <button
+            data-topic-id="${t.id}"
+            class="topic-card-btn text-left rounded-2xl p-4 transition cursor-pointer border-2 ${
+              active
+                ? 'bg-[#0b2922] border-emerald-400 shadow-[0_0_20px_rgba(52,211,153,0.18)]'
+                : 'bg-[#0c1220] border-slate-800 hover:border-slate-600'
+            }"
+          >
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:${t.badgeColor || '#10b981'};"></span>
+                  <span class="font-arcade text-sm sm:text-base text-white uppercase">${escapeHtml(t.title)}</span>
+                </div>
+                <div class="text-xs text-slate-300 mt-1 leading-relaxed">${escapeHtml(t.subtitle)}</div>
+              </div>
+              <span class="px-2.5 py-1 rounded-lg bg-[#070b14] border border-slate-700 font-arcade text-xs text-emerald-300 shrink-0">
+                ${t.count} Qs
+              </span>
+            </div>
+          </button>
+        `;
+      }).join('');
+
+      grid.querySelectorAll('.topic-card-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const picked = btn.dataset.topicId;
+          state.ostTopic = picked;
+          savePreferences();
+          refreshMenuUI();
+          updateHud();
+          playTone(580, 'sine', 0.09, 0.12, 760);
+
+          document.getElementById('topicSelectModal').classList.add('hidden');
+          const meta = getTopicMeta(picked);
+
+          if (state.topicModalReturnMode === 'MATH_TIMEOUT') {
+            if (!state.mathAnswered) {
+              loadTimeoutProblem();
+            }
+          } else if (state.topicModalReturnMode === 'PLAYING' || state.topicModalReturnMode === 'PAUSE_MODAL') {
+            state.mode = 'PLAYING';
+            triggerAnnouncer(`TOPIC: ${meta.shortTitle.toUpperCase()}!`, 1.25);
+          }
+        });
+      });
+    }
+
+    function shuffleArray(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function drawNextOstProblem() {
+      const pool = state.ostTopic === 'ALL'
+        ? (window.OST_PROBLEMS || [])
+        : (window.OST_PROBLEMS || []).filter(p => p.topic === state.ostTopic);
+
+      if (!pool.length) return null;
+
+      if (!state.topicQueues[state.ostTopic] || state.topicQueues[state.ostTopic].length === 0) {
+        state.topicQueues[state.ostTopic] = shuffleArray(pool.map(p => p.id));
+      }
+
+      const nextId = state.topicQueues[state.ostTopic].shift();
+      const raw = pool.find(p => p.id === nextId) || pool[0];
+
+      // Shuffle choice order while tracking the correct string
+      const indexedChoices = raw.choices.map((text, idx) => ({ text, isCorrect: idx === raw.correctIndex }));
+      const shuffledChoices = shuffleArray(indexedChoices);
+      const correctIdx = shuffledChoices.findIndex(c => c.isCorrect);
+
+      return {
+        ...raw,
+        displayChoices: shuffledChoices.map(c => c.text),
+        displayCorrectIndex: correctIdx
+      };
+    }
+
+    function loadTimeoutProblem() {
+      state.mathAnswered = false;
+      const prob = drawNextOstProblem();
+      state.currentProblem = prob;
+      if (!prob) return;
+
+      const topicMeta = getTopicMeta(prob.topic);
+      document.getElementById('mathModalTopicTitle').textContent = topicMeta.title.toUpperCase();
+      document.getElementById('mathModalCounterBadge').textContent = `${prob.id} • ${topicMeta.shortTitle.toUpperCase()}`;
+
+      document.getElementById('mathProblemExpr').innerHTML = formatMathHTML(prob.prompt);
+
+      const visualEl = document.getElementById('mathVisualContainer');
+      if (prob.visual) {
+        visualEl.innerHTML = renderVisualHTML(prob.visual);
+        visualEl.classList.remove('hidden');
+      } else {
+        visualEl.innerHTML = '';
+        visualEl.classList.add('hidden');
+      }
+
+      const feedbackBox = document.getElementById('mathFeedbackBox');
+      feedbackBox.classList.add('hidden');
+      document.getElementById('mathNextBtn').classList.add('hidden');
+
+      const useSingleColumn = prob.displayChoices.some(c => plainTextLength(c) > 26);
+      const grid = document.getElementById('mathChoicesGrid');
+      grid.className = useSingleColumn
+        ? 'grid grid-cols-1 gap-2.5 mb-4'
+        : 'grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-4';
+
+      const letters = ['A', 'B', 'C', 'D'];
+      grid.innerHTML = prob.displayChoices.map((choice, idx) => `
+        <button
+          data-choice-idx="${idx}"
+          class="math-choice-btn w-full min-h-[54px] py-3 px-4 rounded-xl bg-[#0e1526] hover:bg-slate-800 border-2 border-slate-700 text-sm sm:text-base font-semibold text-white transition cursor-pointer flex items-center gap-3 ${useSingleColumn ? 'text-left justify-start' : 'justify-center text-center'}"
+        >
+          <span class="px-2 py-0.5 rounded-md bg-slate-800 text-amber-300 font-arcade text-xs shrink-0">${letters[idx]}</span>
+          <span class="math-prose">${formatMathHTML(choice)}</span>
+        </button>
+      `).join('');
+
+      grid.querySelectorAll('.math-choice-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (state.mathAnswered) return;
+          selectMultipleChoice(Number(btn.dataset.choiceIdx), btn);
+        });
+      });
+    }
+
+    function triggerMathTimeout() {
+      state.mode = 'MATH_TIMEOUT';
+      Object.keys(keys).forEach(k => { keys[k] = false; });
+      loadTimeoutProblem();
+      document.getElementById('mathModal').classList.remove('hidden');
+      playTone(440, 'triangle', 0.16, 0.14, 660);
+    }
+
+    function selectMultipleChoice(selectedIdx, clickedBtn) {
+      if (state.mathAnswered) return;
+      state.mathAnswered = true;
+      state.mathTotal++;
+
+      const prob = state.currentProblem;
+      const isCorrect = selectedIdx === prob.displayCorrectIndex;
+      const useSingleColumn = prob.displayChoices.some(c => plainTextLength(c) > 26);
+      const alignClass = useSingleColumn ? 'text-left justify-start' : 'justify-center text-center';
+
+      document.querySelectorAll('.math-choice-btn').forEach(btn => {
+        btn.disabled = true;
+        btn.classList.remove('hover:bg-slate-800', 'cursor-pointer');
+        const idx = Number(btn.dataset.choiceIdx);
+        if (idx === prob.displayCorrectIndex) {
+          btn.className = `math-choice-btn w-full min-h-[54px] py-3 px-4 rounded-xl bg-emerald-950/90 border-2 border-emerald-400 text-sm sm:text-base font-semibold text-emerald-200 flex items-center gap-3 cursor-not-allowed ${alignClass}`;
+        } else if (btn === clickedBtn && !isCorrect) {
+          btn.className = `math-choice-btn w-full min-h-[54px] py-3 px-4 rounded-xl bg-rose-950/90 border-2 border-rose-500 text-sm sm:text-base font-semibold text-rose-200 flex items-center gap-3 cursor-not-allowed ${alignClass}`;
+        } else {
+          btn.className = `math-choice-btn w-full min-h-[54px] py-3 px-4 rounded-xl bg-[#090d18] border-2 border-slate-800 text-sm sm:text-base font-semibold text-slate-500 flex items-center gap-3 opacity-60 cursor-not-allowed ${alignClass}`;
+        }
+      });
+
+      const feedbackBox = document.getElementById('mathFeedbackBox');
+      feedbackBox.classList.remove('hidden');
+      const correctFormatted = formatMathHTML(prob.displayChoices[prob.displayCorrectIndex]);
+
+      if (isCorrect) {
+        state.mathCorrect++;
+        state.playerTurbo = 100;
+        state.playerStreak = Math.min(CONFIG.ON_FIRE_REQ, state.playerStreak + 1);
+        feedbackBox.className = 'math-prose rounded-xl p-3.5 border border-emerald-500/60 bg-emerald-950/70 text-emerald-200 text-sm font-semibold mb-3';
+        feedbackBox.innerHTML = `<strong>SWISH!</strong> ${escapeHtml(prob.explanation)} <strong>Full Turbo &amp; Streak Boost earned!</strong>`;
+        playTone(523.25, 'sine', 0.14, 0.16, 783.99);
+      } else {
+        state.playerTurbo = Math.max(0, state.playerTurbo * 0.5);
+        const activeUserPlayers = [state.players[0], state.players[1]].filter(p => p && !p.fouledOut);
+        const targetPlayer = (state.players[state.controlledIdx] && !state.players[state.controlledIdx].fouledOut)
+          ? state.players[state.controlledIdx]
+          : activeUserPlayers[0];
+
+        let foulMsg = 'Squad stamina reduced by 50%.';
+        if (targetPlayer) {
+          targetPlayer.fouls = (targetPlayer.fouls || 0) + 1;
+          if (targetPlayer.fouls >= 4) {
+            targetPlayer.fouledOut = true;
+            foulMsg = `${targetPlayer.name} picked up Foul #4 and FOULED OUT!`;
+            const remainingIdx = [0, 1].find(i => state.players[i] && !state.players[i].fouledOut);
+            if (remainingIdx !== undefined) {
+              state.controlledIdx = remainingIdx;
+              if (state.ball.owner === targetPlayer.idx) {
+                state.ball.owner = remainingIdx;
+              }
+              foulMsg += ` Playing 1-on-2 with ${state.players[remainingIdx].name}!`;
+            } else {
+              state.forfeitLoss = true;
+              foulMsg += ' Both players fouled out — FORFEIT LOSS!';
+            }
+          } else {
+            foulMsg = `FOUL on ${targetPlayer.name} (${targetPlayer.fouls}/4 fouls)!`;
+          }
+        }
+
+        feedbackBox.className = 'math-prose rounded-xl p-3.5 border border-rose-500/60 bg-rose-950/70 text-rose-200 text-sm font-semibold mb-3';
+        feedbackBox.innerHTML = `<strong>BRICK!</strong> Correct answer: ${correctFormatted} — ${escapeHtml(prob.explanation)} <span class="text-rose-300 font-bold">${escapeHtml(foulMsg)}</span>`;
+        playTone(170, 'sawtooth', 0.25, 0.15, 110);
+      }
+
+      updateHud();
+      document.getElementById('mathNextBtn').classList.remove('hidden');
+    }
+
+    function resumeFromMathTimeout() {
+      document.getElementById('mathModal').classList.add('hidden');
+      if (state.forfeitLoss) {
+        state.pendingQuarterEnd = false;
+        triggerForfeitGameOver();
+        return;
+      }
+      state.mathTimer = CONFIG.MATH_INTERVAL;
+      if (state.pendingQuarterEnd) {
+        state.pendingQuarterEnd = false;
+        endCurrentQuarter();
+        return;
+      }
+      state.mode = 'PLAYING';
+      updateHud();
+      const ejectedCount = [state.players[0], state.players[1]].filter(p => p && p.fouledOut).length;
+      if (ejectedCount === 1) {
+        triggerAnnouncer('FOULED OUT! PLAYING 1-ON-2!', 1.45);
+      }
+    }
+
+    function triggerForfeitGameOver() {
+      state.mode = 'GAME_OVER';
+      const modal = document.getElementById('periodModal');
+      const badge = document.getElementById('periodBadge');
+      const title = document.getElementById('periodTitle');
+      const btn = document.getElementById('periodContinueBtn');
+
+      const pTeam = getTeamById(state.playerTeamId);
+      const cTeam = getTeamById(state.cpuTeamId);
+
+      document.getElementById('periodPlayerName').textContent = pTeam.name.toUpperCase();
+      document.getElementById('periodCpuName').textContent = cTeam.name.toUpperCase();
+      document.getElementById('periodPlayerScore').textContent = state.playerScore;
+      document.getElementById('periodCpuScore').textContent = state.cpuScore;
+      document.getElementById('statDunks').textContent = state.dunksCount;
+      document.getElementById('statBlocks').textContent = state.blocksCount;
+      document.getElementById('statMath').textContent = `${state.mathCorrect} / ${state.mathTotal}`;
+
+      badge.textContent = 'BOTH PLAYERS FOULED OUT (4 FOULS EACH)';
+      title.textContent = 'GAME OVER — FORFEIT LOSS!';
+      btn.textContent = 'PLAY AGAIN / TEAM SELECT';
+
+      modal.classList.remove('hidden');
+      playTone(150, 'sawtooth', 0.5, 0.18, 70);
+    }
+
+    // =========================================================================
+    // 7. MATCH & COURT ENTITY SETUP
+    // =========================================================================
+    function createPlayerEntity(bio, team, side, idx, x, y) {
+      return {
+        ...bio,
+        teamId: team.id,
+        primary: team.primary,
+        secondary: team.secondary,
+        side,
+        idx,
+        x,
+        y,
+        z: 0,
+        vx: 0,
+        vy: 0,
+        vz: 0,
+        facing: side === 'player' ? 1 : -1,
+        runPhase: Math.random() * Math.PI * 2,
+        dunkType: null,
+        dunkTimer: 0,
+        blockingTimer: 0,
+        swatSwing: 0,
+        knockdownTimer: 0,
+        knockdownDir: 1,
+        stunTimer: 0,
+        fouls: 0,
+        fouledOut: false
+      };
+    }
+
+    function setupCourtPositions(possessionSide = 'player') {
+      const pTeam = getTeamById(state.playerTeamId);
+      const cTeam = getTeamById(state.cpuTeamId);
+
+      const prevFouls0 = state.players[0] ? state.players[0].fouls : 0;
+      const prevOut0 = state.players[0] ? state.players[0].fouledOut : false;
+      const prevFouls1 = state.players[1] ? state.players[1].fouls : 0;
+      const prevOut1 = state.players[1] ? state.players[1].fouledOut : false;
+
+      state.players = [
+        createPlayerEntity(pTeam.players[0], pTeam, 'player', 0, 440, 315),
+        createPlayerEntity(pTeam.players[1], pTeam, 'player', 1, 390, 445),
+        createPlayerEntity(cTeam.players[0], cTeam, 'cpu', 0, 840, 315),
+        createPlayerEntity(cTeam.players[1], cTeam, 'cpu', 1, 890, 445)
+      ];
+
+      state.players[0].fouls = prevFouls0;
+      state.players[0].fouledOut = prevOut0;
+      state.players[1].fouls = prevFouls1;
+      state.players[1].fouledOut = prevOut1;
+
+      const activePlayerIdx = !state.players[0].fouledOut ? 0 : 1;
+      state.controlledIdx = activePlayerIdx;
+      state.graceTimer = 1.1;
+
+      const ownerIdx = possessionSide === 'player' ? activePlayerIdx : 2;
+      state.ball.owner = ownerIdx;
+      state.ball.inFlight = false;
+      state.ball.flightType = null;
+      state.ball.x = state.players[ownerIdx].x;
+      state.ball.y = state.players[ownerIdx].y;
+      state.ball.z = 36;
+    }
+
+    function startMatch() {
+      state.quarter = 1;
+      state.clock = CONFIG.QUARTER_DURATION;
+      state.mathTimer = CONFIG.MATH_INTERVAL;
+      state.playerScore = 0;
+      state.cpuScore = 0;
+      state.playerTurbo = 100;
+      state.cpuTurbo = 100;
+      state.playerStreak = 0;
+      state.cpuStreak = 0;
+      state.dunksCount = 0;
+      state.blocksCount = 0;
+      state.mathCorrect = 0;
+      state.mathTotal = 0;
+      state.particles = [];
+      state.rimFlexLeft = 0;
+      state.rimFlexRight = 0;
+      state.shakeTimer = 0;
+      state.forfeitLoss = false;
+      state.pendingQuarterEnd = false;
+      state.players = [];
+
+      setupCourtPositions('player');
+
+      document.getElementById('menuOverlay').classList.add('hidden');
+      document.getElementById('topHud').classList.remove('hidden');
+      document.getElementById('bottomControlsBar').classList.remove('hidden');
+
+      const pTeam = getTeamById(state.playerTeamId);
+      const cTeam = getTeamById(state.cpuTeamId);
+
+      const pBadge = document.getElementById('hudPlayerBadge');
+      pBadge.textContent = pTeam.id;
+      pBadge.style.background = pTeam.primary;
+      document.getElementById('hudPlayerName').textContent = pTeam.name.toUpperCase();
+
+      const cBadge = document.getElementById('hudCpuBadge');
+      cBadge.textContent = cTeam.id;
+      cBadge.style.background = cTeam.primary;
+      document.getElementById('hudCpuName').textContent = cTeam.name.toUpperCase();
+
+      state.mode = 'PLAYING';
+      resizeCanvas();
+      updateHud();
+      triggerAnnouncer('TIP OFF!', 1.2);
+      playTone(520, 'triangle', 0.22, 0.16, 780);
+    }
+
+    function formatPlayerFoulBadge(p) {
+      if (!p) return '';
+      const last = p.name.split(' ').pop().toUpperCase();
+      const f = p.fouls || 0;
+      const dots = [0, 1, 2, 3].map(i =>
+        `<span class="inline-block w-1.5 h-1.5 rounded-full ${i < f ? (f >= 3 ? 'bg-rose-500' : 'bg-amber-400') : 'bg-slate-700'}"></span>`
+      ).join('');
+      const status = p.fouledOut
+        ? '<span class="text-rose-400 font-extrabold">OUT</span>'
+        : `<span class="${f >= 3 ? 'text-rose-400 font-bold' : 'text-slate-400'}">${f}/4</span>`;
+      return `<span class="inline-flex items-center gap-1 ${p.fouledOut ? 'opacity-60 line-through' : ''}"><span>${last}</span><span class="inline-flex items-center gap-0.5">${dots}</span>${status}</span>`;
+    }
+
+    function updateHud() {
+      document.getElementById('hudPlayerScore').textContent = state.playerScore;
+      document.getElementById('hudCpuScore').textContent = state.cpuScore;
+      document.getElementById('hudPlayerTurbo').style.width = `${Math.max(0, Math.min(100, state.playerTurbo))}%`;
+      document.getElementById('hudCpuTurbo').style.width = `${Math.max(0, Math.min(100, state.cpuTurbo))}%`;
+
+      const topicMeta = getTopicMeta(state.ostTopic);
+      const topicBtn = document.getElementById('hudTopicBtn');
+      if (topicBtn) {
+        topicBtn.textContent = `TOPIC: ${topicMeta.shortTitle.toUpperCase()}`;
+      }
+
+      const pFoulsEl = document.getElementById('hudPlayerFouls');
+      if (pFoulsEl && state.players.length >= 2) {
+        pFoulsEl.innerHTML = `${formatPlayerFoulBadge(state.players[0])}<span class="text-slate-600">|</span>${formatPlayerFoulBadge(state.players[1])}`;
+      }
+      const cFoulsEl = document.getElementById('hudCpuFouls');
+      if (cFoulsEl && state.players.length >= 4) {
+        cFoulsEl.innerHTML = `${formatPlayerFoulBadge(state.players[2])}<span class="text-slate-600">|</span>${formatPlayerFoulBadge(state.players[3])}`;
+      }
+
+      const pStreakEl = document.getElementById('hudPlayerStreak');
+      if (state.playerStreak >= CONFIG.ON_FIRE_REQ) {
+        pStreakEl.textContent = 'ON FIRE!';
+        pStreakEl.className = 'text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-orange-600 text-yellow-200 animate-pulse';
+      } else if (state.playerStreak >= CONFIG.HEATING_UP_REQ) {
+        pStreakEl.textContent = 'HEATING UP';
+        pStreakEl.className = 'text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-amber-600/80 text-white';
+      } else {
+        pStreakEl.textContent = 'NORMAL';
+        pStreakEl.className = 'text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-slate-800 text-slate-300';
+      }
+
+      const cStreakEl = document.getElementById('hudCpuStreak');
+      if (state.cpuStreak >= CONFIG.ON_FIRE_REQ) {
+        cStreakEl.textContent = 'ON FIRE!';
+        cStreakEl.className = 'text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-orange-600 text-yellow-200 animate-pulse';
+      } else if (state.cpuStreak >= CONFIG.HEATING_UP_REQ) {
+        cStreakEl.textContent = 'HEATING UP';
+        cStreakEl.className = 'text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-amber-600/80 text-white';
+      } else {
+        cStreakEl.textContent = 'NORMAL';
+        cStreakEl.className = 'text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-slate-800 text-slate-300';
+      }
+
+      const mins = Math.floor(Math.max(0, state.clock) / 60);
+      const secs = Math.floor(Math.max(0, state.clock) % 60);
+      document.getElementById('hudClock').textContent = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+      document.getElementById('hudQuarter').textContent = state.quarter <= 4 ? `Q${state.quarter}` : 'OT';
+      document.getElementById('hudMathTimer').textContent = `TIMEOUT IN ${Math.max(0, Math.ceil(state.mathTimer))}s`;
+    }
+
+    // =========================================================================
+    // 8. PLAYER ACTIONS (SHOOT / DUNK / BLOCK / PASS / ALLEY-OOP / STEAL / SWITCH)
+    // =========================================================================
+    function handlePlayerAction(action) {
+      if (state.mode !== 'PLAYING') return;
+      const me = state.players[state.controlledIdx];
+      if (!me || me.knockdownTimer > 0) return;
+
+      const hasBall = !state.ball.inFlight && state.ball.owner === state.controlledIdx;
+      const teamHasBall = !state.ball.inFlight && (state.ball.owner === 0 || state.ball.owner === 1);
+
+      if (action === 'shoot') {
+        if (hasBall && me.z === 0) {
+          launchShot(state.controlledIdx);
+        } else if (!teamHasBall && me.z === 0) {
+          triggerBlockJump(state.controlledIdx);
+        }
+      } else if (action === 'pass') {
+        const isTurboHeld = Boolean(keys['ShiftLeft'] || keys['ShiftRight']);
+        const mateIdx = state.controlledIdx === 0 ? 1 : 0;
+        const mateAvailable = state.players[mateIdx] && !state.players[mateIdx].fouledOut;
+
+        if (hasBall && me.z === 0) {
+          if (!mateAvailable) {
+            triggerAnnouncer('NO TEAMMATE AVAILABLE!', 0.9);
+            return;
+          }
+          if (isTurboHeld) {
+            launchAlleyOop(state.controlledIdx, mateIdx);
+          } else {
+            launchPass(state.controlledIdx, mateIdx);
+          }
+        } else if (teamHasBall && !hasBall) {
+          if (mateAvailable && state.players[mateIdx].z === 0 && me.z === 0) {
+            if (isTurboHeld) {
+              launchAlleyOop(mateIdx, state.controlledIdx);
+            } else {
+              launchPass(mateIdx, state.controlledIdx);
+            }
+          }
+        } else if (!teamHasBall && me.z === 0) {
+          attemptSteal(state.controlledIdx);
+        }
+      } else if (action === 'switch') {
+        if (!hasBall) {
+          const mateIdx = state.controlledIdx === 0 ? 1 : 0;
+          if (state.players[mateIdx] && !state.players[mateIdx].fouledOut) {
+            state.controlledIdx = mateIdx;
+            playTone(460, 'sine', 0.07, 0.09, 600);
+          }
+        }
+      }
+    }
+
+    function launchAlleyOop(passerIdx, finisherIdx) {
+      const passer = state.players[passerIdx];
+      const finisher = state.players[finisherIdx];
+      if (!passer || !finisher) return;
+
+      const isPlayerSide = passer.side === 'player';
+      const hoopX = isPlayerSide ? CONFIG.COURT.RIGHT_HOOP_X : CONFIG.COURT.LEFT_HOOP_X;
+      const hoopY = CONFIG.COURT.HOOP_Y;
+      const finisherDistToHoop = Math.hypot(hoopX - finisher.x, hoopY - finisher.y);
+
+      const maxAlleyDist = CONFIG.DUNK_RANGE + 55;
+      if (finisherDistToHoop > maxAlleyDist || finisher.dunk < CONFIG.DUNK_MIN_RATING) {
+        launchPass(passerIdx, finisherIdx);
+        if (finisherDistToHoop > maxAlleyDist) {
+          triggerAnnouncer('TOO FAR FOR ALLEY-OOP!', 0.95);
+        }
+        return;
+      }
+
+      const catchX = hoopX + (isPlayerSide ? -68 : 68);
+      const catchY = hoopY + (finisher.y >= hoopY ? 10 : -10);
+      const lobDur = Math.max(0.42, Math.min(0.65, Math.hypot(catchX - passer.x, catchY - passer.y) / 920));
+
+      finisher.facing = hoopX >= finisher.x ? 1 : -1;
+      finisher.vz = CONFIG.DUNK_JUMP_VEL * 0.96;
+      finisher.vx = (catchX - finisher.x) / lobDur;
+      finisher.vy = (catchY - finisher.y) / lobDur;
+      finisher.dunkType = finisher.dunkStyle || 'windmill';
+      finisher.dunkTimer = lobDur + 0.45;
+
+      state.ball.owner = -1;
+      state.ball.inFlight = true;
+      state.ball.flightType = 'alley_lob';
+      state.ball.shooterIdx = finisherIdx;
+      state.ball.startX = passer.x;
+      state.ball.startY = passer.y;
+      state.ball.startZ = passer.z + 52;
+      state.ball.targetX = catchX;
+      state.ball.targetY = catchY;
+      state.ball.targetZ = 104;
+      state.ball.flightTime = 0;
+      state.ball.flightDuration = lobDur;
+
+      if (passer.side === 'player') {
+        state.controlledIdx = finisherIdx;
+      }
+
+      spawnParticles(passer.x, passer.y - 25, 10, '#38bdf8', 12, 4);
+      triggerAnnouncer('ALLEY-OOP LOB!', 1.0);
+      playTone(480, 'sine', 0.14, 0.12, 760);
+    }
+
+    function launchPass(fromIdx, toIdx) {
+      const passer = state.players[fromIdx];
+      const receiver = state.players[toIdx];
+      if (!passer || !receiver) return;
+
+      state.ball.owner = -1;
+      state.ball.inFlight = true;
+      state.ball.flightType = 'pass';
+      state.ball.shooterIdx = toIdx;
+      state.ball.startX = passer.x;
+      state.ball.startY = passer.y;
+      state.ball.startZ = passer.z + 45;
+      state.ball.targetX = receiver.x;
+      state.ball.targetY = receiver.y;
+      state.ball.targetZ = 45;
+      state.ball.flightTime = 0;
+      state.ball.flightDuration = Math.max(0.18, Math.min(0.42, Math.hypot(receiver.x - passer.x, receiver.y - passer.y) / 1100));
+
+      if (passer.side === 'player') {
+        state.controlledIdx = toIdx;
+      }
+      playTone(390, 'sine', 0.08, 0.1, 520);
+    }
+
+    function attemptSteal(defenderIdx) {
+      const defP = state.players[defenderIdx];
+      if (!defP || defP.stunTimer > 0) return;
+
+      defP.stunTimer = 0.32;
+      defP.vx += defP.facing * 120;
+      playTone(310, 'square', 0.07, 0.08, 220);
+
+      if (state.ball.inFlight || state.ball.owner < 0 || state.graceTimer > 0) return;
+      const handler = state.players[state.ball.owner];
+      if (!handler || handler.side === defP.side) return;
+
+      const dist = Math.hypot(handler.x - defP.x, handler.y - defP.y);
+      if (dist < 64) {
+        const stealChance = 0.34 + ((defP.def - 75) * 0.006);
+        if (Math.random() < stealChance) {
+          handler.knockdownTimer = 0.55;
+          handler.knockdownDir = handler.x >= defP.x ? 1 : -1;
+          handler.vx = handler.knockdownDir * 140;
+
+          state.ball.owner = defenderIdx;
+          if (defP.side === 'player') state.controlledIdx = defenderIdx;
+          state.graceTimer = 0.75;
+          spawnParticles(handler.x, handler.y, 14, '#facc15', 14, 4);
+          triggerAnnouncer('PICKPOCKET! STOLEN!', 1.15);
+          playTone(620, 'triangle', 0.14, 0.14, 880);
+        }
+      }
+    }
+
+    function triggerBlockJump(blockerIdx) {
+      const blocker = state.players[blockerIdx];
+      if (!blocker || blocker.z > 0 || blocker.stunTimer > 0) return;
+
+      const defScale = 0.94 + ((blocker.def || 78) / 100) * 0.22;
+      blocker.vz = CONFIG.SHOT_JUMP_VEL * defScale;
+      blocker.blockingTimer = 0.68;
+      blocker.swatSwing = 0;
+
+      const targetX = state.ball.inFlight
+        ? state.ball.x
+        : (state.ball.owner >= 0 ? state.players[state.ball.owner].x : blocker.x);
+      const targetY = state.ball.inFlight
+        ? state.ball.y
+        : (state.ball.owner >= 0 ? state.players[state.ball.owner].y : blocker.y);
+
+      const dx = targetX - blocker.x;
+      const dy = targetY - blocker.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist > 4 && dist < 155) {
+        blocker.vx += (dx / dist) * 155;
+        blocker.vy += (dy / dist) * 155;
+        blocker.facing = dx >= 0 ? 1 : -1;
+      }
+      playTone(320, 'triangle', 0.11, 0.11, 470);
+    }
+
+    function launchShot(shooterIdx) {
+      const shooter = state.players[shooterIdx];
+      if (!shooter) return;
+
+      const isPlayerSide = shooter.side === 'player';
+      const hoopX = isPlayerSide ? CONFIG.COURT.RIGHT_HOOP_X : CONFIG.COURT.LEFT_HOOP_X;
+      const hoopY = CONFIG.COURT.HOOP_Y;
+      const distToHoop = Math.hypot(hoopX - shooter.x, hoopY - shooter.y);
+      const isThree = distToHoop > CONFIG.THREE_PT_RADIUS;
+      const isDunk = !isThree && distToHoop <= CONFIG.DUNK_RANGE && shooter.dunk >= CONFIG.DUNK_MIN_RATING;
+
+      let minDefDist = 999;
+      let nearestDef = null;
+      state.players.forEach(opp => {
+        if (!opp.fouledOut && opp.side !== shooter.side && opp.knockdownTimer <= 0) {
+          const d = Math.hypot(opp.x - shooter.x, opp.y - shooter.y);
+          if (d < minDefDist) {
+            minDefDist = d;
+            nearestDef = opp;
+          }
+        }
+      });
+
+      const teamStreak = isPlayerSide ? state.playerStreak : state.cpuStreak;
+      const isOnFire = teamStreak >= CONFIG.ON_FIRE_REQ;
+      const isHeatingUp = teamStreak >= CONFIG.HEATING_UP_REQ;
+
+      let makeProb = 0.45;
+      if (isDunk) {
+        makeProb = CONFIG.SHOT_TUNING.dunkBase + ((shooter.dunk - 75) * 0.005);
+      } else if (distToHoop < 155) {
+        makeProb = CONFIG.SHOT_TUNING.layupBase + ((shooter.dunk - 75) * 0.004);
+      } else if (!isThree) {
+        makeProb = CONFIG.SHOT_TUNING.midBase + ((shooter.three - 70) * 0.006);
+      } else {
+        makeProb = CONFIG.SHOT_TUNING.threeBase + ((shooter.three - 70) * 0.007);
+      }
+
+      if (isOnFire) makeProb += CONFIG.SHOT_TUNING.onFireBoost;
+      else if (isHeatingUp) makeProb += 0.08;
+
+      if (minDefDist < 95) {
+        const contestFactor = (1 - minDefDist / 95) * CONFIG.SHOT_TUNING.contestPenaltyMax;
+        makeProb -= contestFactor;
+      }
+
+      makeProb = Math.max(0.14, Math.min(0.95, makeProb));
+      const willMake = Math.random() < makeProb;
+
+      shooter.facing = hoopX >= shooter.x ? 1 : -1;
+
+      if (isDunk) {
+        shooter.vz = CONFIG.DUNK_JUMP_VEL;
+        shooter.dunkType = shooter.dunkStyle || 'tomahawk';
+        shooter.dunkTimer = 0.92;
+
+        const flightDur = 0.86;
+        const rimFrontX = hoopX + (isPlayerSide ? -18 : 18);
+        shooter.vx = (rimFrontX - shooter.x) / flightDur;
+        shooter.vy = (hoopY - shooter.y) / flightDur;
+
+        state.ball.owner = -1;
+        state.ball.inFlight = true;
+        state.ball.flightType = 'dunk';
+        state.ball.shooterIdx = shooterIdx;
+        state.ball.points = 2;
+        state.ball.willMake = willMake;
+        state.ball.startX = shooter.x;
+        state.ball.startY = shooter.y;
+        state.ball.startZ = 54;
+        state.ball.targetX = hoopX;
+        state.ball.targetY = hoopY;
+        state.ball.targetZ = 108;
+        state.ball.flightTime = 0;
+        state.ball.flightDuration = flightDur;
+
+        const dunkCallouts = ['BOOMSHAKALAKA!', 'MONSTER JAM!', 'THROWN DOWN!', 'RIM ROCKER!'];
+        triggerAnnouncer(dunkCallouts[Math.floor(Math.random() * dunkCallouts.length)], 1.25);
+        playTone(220, 'sawtooth', 0.24, 0.14, 520);
+      } else {
+        shooter.vz = CONFIG.SHOT_JUMP_VEL;
+        const flightDur = Math.max(0.55, Math.min(0.95, 0.5 + distToHoop / 950));
+
+        state.ball.owner = -1;
+        state.ball.inFlight = true;
+        state.ball.flightType = 'shot';
+        state.ball.shooterIdx = shooterIdx;
+        state.ball.points = isThree ? 3 : 2;
+        state.ball.willMake = willMake;
+        state.ball.startX = shooter.x;
+        state.ball.startY = shooter.y;
+        state.ball.startZ = 62;
+        state.ball.targetX = hoopX + (willMake ? 0 : (Math.random() < 0.5 ? -18 : 18));
+        state.ball.targetY = hoopY + (willMake ? 0 : (Math.random() - 0.5) * 16);
+        state.ball.targetZ = 108;
+        state.ball.flightTime = 0;
+        state.ball.flightDuration = flightDur;
+
+        if (isThree) {
+          triggerAnnouncer('FROM DOWNTOWN!', 1.05);
+        }
+        playTone(460, 'sine', 0.12, 0.11, 640);
+      }
+
+      if (nearestDef && nearestDef.side === 'cpu' && nearestDef.z === 0 && minDefDist < 130) {
+        const jumpChance = state.cpuDiff === 'legend' ? 0.82 : (state.cpuDiff === 'allstar' ? 0.58 : 0.3);
+        if (Math.random() < jumpChance) {
+          triggerBlockJump(nearestDef.idx + 2);
+        }
+      }
+    }
+
+    function checkAerialBlockCollision() {
+      const b = state.ball;
+      if (!b.inFlight || (b.flightType !== 'shot' && b.flightType !== 'dunk')) return;
+      const shooter = state.players[b.shooterIdx];
+      if (!shooter) return;
+
+      const t = b.flightDuration > 0 ? (b.flightTime / b.flightDuration) : 0;
+      const isDescendingShot = b.flightType === 'shot' && t > 0.56 && t <= 0.96;
+
+      if (!isDescendingShot && b.flightTime > b.flightDuration * 0.72) return;
+
+      let goaltendTriggered = false;
+
+      state.players.forEach(defP => {
+        if (goaltendTriggered || defP.fouledOut || defP.side === shooter.side || defP.blockingTimer <= 0 || defP.z < 18) return;
+        const distXY = Math.hypot(defP.x - b.x, defP.y - b.y);
+        const distZ = Math.abs((defP.z + 55) - b.z);
+
+        if (distXY < CONFIG.BLOCK_RANGE && distZ < CONFIG.BLOCK_Z_TOLERANCE) {
+          if (isDescendingShot) {
+            const goaltendChance = 0.28 + ((defP.def - 75) * 0.004);
+            if (Math.random() < goaltendChance) {
+              goaltendTriggered = true;
+              const defIdx = state.players.indexOf(defP);
+              defP.blockingTimer = 0.15;
+              defP.swatSwing = 1;
+
+              b.inFlight = false;
+              b.flightType = null;
+              b.owner = defIdx;
+              if (defP.side === 'player') {
+                state.controlledIdx = defIdx;
+              }
+              state.graceTimer = 1.0;
+
+              const isShooterPlayer = shooter.side === 'player';
+              if (isShooterPlayer) {
+                state.playerScore += b.points;
+                state.playerStreak++;
+              } else {
+                state.cpuScore += b.points;
+                state.cpuStreak++;
+              }
+
+              spawnParticles(b.x, b.y - b.z * 0.5, 16, '#facc15', 14, 4);
+              triggerAnnouncer('GOALTENDING! COUNT IT!', 1.35);
+              playTone(290, 'sawtooth', 0.22, 0.15, 440);
+              updateHud();
+            }
+            return;
+          }
+
+          const posterChance = b.flightType === 'dunk'
+            ? Math.max(0.18, Math.min(0.65, (shooter.dunk - defP.def + 20) * 0.015))
+            : 0;
+
+          if (b.flightType === 'dunk' && Math.random() < posterChance) {
+            defP.blockingTimer = 0;
+            defP.knockdownTimer = 0.75;
+            defP.knockdownDir = defP.x >= shooter.x ? 1 : -1;
+            defP.vx = defP.knockdownDir * 170;
+            spawnParticles(defP.x, defP.y - 30, 18, '#fb923c', 18, 5);
+            triggerAnnouncer('POSTERIZED! FACIAL SLAM!', 1.35);
+            playTone(180, 'sawtooth', 0.22, 0.16, 95);
+          } else {
+            defP.blockingTimer = 0.2;
+            defP.swatSwing = 1;
+            if (defP.side === 'player') state.blocksCount++;
+
+            b.flightType = 'rebound';
+            b.shooterIdx = -1;
+            b.startX = b.x;
+            b.startY = b.y;
+            b.startZ = b.z;
+            b.targetX = b.x + defP.facing * (140 + Math.random() * 90);
+            b.targetY = Math.max(CONFIG.COURT.TOP_Y + 20, Math.min(CONFIG.COURT.BOTTOM_Y - 20, b.y + (Math.random() - 0.5) * 140));
+            b.targetZ = 18;
+            b.flightTime = 0;
+            b.flightDuration = 0.55;
+
+            state.shakeTimer = 0.18;
+            spawnParticles(b.x, b.y - b.z * 0.5, 20, '#38bdf8', 18, 5);
+            triggerAnnouncer('GET THAT OUTTA HERE!', 1.3);
+            playTone(150, 'square', 0.2, 0.16, 75);
+          }
+        }
+      });
+    }
+
+    function resolveBasket() {
+      const b = state.ball;
+      const shooter = state.players[b.shooterIdx];
+      const isPlayerSide = shooter ? shooter.side === 'player' : true;
+      const wasDunk = b.flightType === 'dunk';
+
+      if (b.willMake) {
+        if (isPlayerSide) {
+          state.playerScore += b.points;
+          if (wasDunk) state.dunksCount++;
+          state.playerStreak++;
+
+          if (state.playerStreak === CONFIG.ON_FIRE_REQ) {
+            triggerAnnouncer('YOUR SQUAD IS ON FIRE!', 1.5);
+          } else if (state.playerStreak === CONFIG.HEATING_UP_REQ) {
+            triggerAnnouncer('HEATING UP!', 1.25);
+          }
+        } else {
+          state.cpuScore += b.points;
+          state.cpuStreak++;
+
+          if (state.cpuStreak === CONFIG.ON_FIRE_REQ) {
+            triggerAnnouncer('CPU IS ON FIRE!', 1.5);
+          } else if (state.cpuStreak === CONFIG.HEATING_UP_REQ) {
+            triggerAnnouncer('CPU IS HEATING UP!', 1.25);
+          }
+        }
+
+        if (wasDunk) {
+          state.shakeTimer = 0.26;
+          if (isPlayerSide) state.rimFlexRight = 1.0;
+          else state.rimFlexLeft = 1.0;
+          spawnParticles(b.targetX, CONFIG.COURT.HOOP_Y - 50, 28, '#facc15', 24, 5);
+          playTone(130, 'sawtooth', 0.28, 0.18, 65);
+        } else {
+          spawnParticles(b.targetX, CONFIG.COURT.HOOP_Y - 50, 16, '#fb923c', 16, 4);
+          playTone(660, 'sine', 0.14, 0.14, 880);
+        }
+
+        let inbounderIdx = isPlayerSide ? 3 : 1;
+        let receiverIdx = isPlayerSide ? 2 : 0;
+
+        if (!isPlayerSide) {
+          const activeUserIndices = [0, 1].filter(i => state.players[i] && !state.players[i].fouledOut);
+          if (activeUserIndices.length === 1) {
+            const loneIdx = activeUserIndices[0];
+            const lonePlayer = state.players[loneIdx];
+            lonePlayer.x = CONFIG.COURT.LEFT_X + 36;
+            lonePlayer.y = CONFIG.COURT.HOOP_Y;
+            lonePlayer.z = 0;
+            lonePlayer.vx = 0;
+            lonePlayer.vy = 0;
+            lonePlayer.vz = 0;
+            lonePlayer.facing = 1;
+
+            b.owner = loneIdx;
+            b.inFlight = false;
+            b.flightType = null;
+            b.x = lonePlayer.x + 16;
+            b.y = lonePlayer.y + 4;
+            b.z = 36;
+
+            state.controlledIdx = loneIdx;
+            state.graceTimer = 1.25;
+            updateHud();
+            return;
+          }
+        }
+
+        const inbounder = state.players[inbounderIdx];
+        const receiver = state.players[receiverIdx];
+        const baselineX = isPlayerSide ? CONFIG.COURT.RIGHT_X - 8 : CONFIG.COURT.LEFT_X + 8;
+        const inboundCourtX = isPlayerSide ? CONFIG.COURT.RIGHT_X - 115 : CONFIG.COURT.LEFT_X + 115;
+
+        inbounder.x = baselineX;
+        inbounder.y = CONFIG.COURT.HOOP_Y + 42;
+        inbounder.z = 0;
+        inbounder.vx = 0;
+        inbounder.vy = 0;
+        inbounder.vz = 0;
+        inbounder.facing = isPlayerSide ? -1 : 1;
+
+        receiver.x = inboundCourtX;
+        receiver.y = CONFIG.COURT.HOOP_Y - 28;
+        receiver.z = 0;
+        receiver.vx = 0;
+        receiver.vy = 0;
+        receiver.vz = 0;
+        receiver.facing = isPlayerSide ? -1 : 1;
+
+        b.owner = -1;
+        b.inFlight = true;
+        b.flightType = 'pass';
+        b.shooterIdx = receiverIdx;
+        b.startX = inbounder.x;
+        b.startY = inbounder.y;
+        b.startZ = 48;
+        b.targetX = receiver.x;
+        b.targetY = receiver.y;
+        b.targetZ = 45;
+        b.flightTime = 0;
+        b.flightDuration = 0.36;
+
+        if (!isPlayerSide) {
+          state.controlledIdx = receiverIdx;
+        }
+        state.graceTimer = 1.25;
+      } else {
+        if (isPlayerSide) {
+          if (state.playerStreak >= CONFIG.HEATING_UP_REQ) triggerAnnouncer('COOLED DOWN!', 1.1);
+          state.playerStreak = 0;
+        } else {
+          if (state.cpuStreak >= CONFIG.HEATING_UP_REQ) triggerAnnouncer('CPU COOLED DOWN!', 1.1);
+          state.cpuStreak = 0;
+        }
+
+        playTone(210, 'square', 0.14, 0.12, 140);
+        b.flightType = 'rebound';
+        b.shooterIdx = -1;
+        b.startX = b.targetX;
+        b.startY = b.targetY;
+        b.startZ = 105;
+        b.targetX = b.targetX + (isPlayerSide ? -110 - Math.random() * 90 : 110 + Math.random() * 90);
+        b.targetY = Math.max(CONFIG.COURT.TOP_Y + 25, Math.min(CONFIG.COURT.BOTTOM_Y - 25, CONFIG.COURT.HOOP_Y + (Math.random() - 0.5) * 170));
+        b.targetZ = 16;
+        b.flightTime = 0;
+        b.flightDuration = 0.62;
+      }
+
+      updateHud();
+    }
+
+    // =========================================================================
+    // 9. MOVEMENT, CPU AI & FRAME PHYSICS UPDATE
+    // =========================================================================
+    function handleHumanMovement(dt) {
+      const me = state.players[state.controlledIdx];
+      if (!me || me.knockdownTimer > 0 || me.z > 0) return;
+
+      let ix = 0, iy = 0;
+      if (keys['KeyW'] || keys['ArrowUp']) iy -= 1;
+      if (keys['KeyS'] || keys['ArrowDown']) iy += 1;
+      if (keys['KeyA'] || keys['ArrowLeft']) ix -= 1;
+      if (keys['KeyD'] || keys['ArrowRight']) ix += 1;
+
+      if (ix !== 0 || iy !== 0) {
+        const len = Math.hypot(ix, iy);
+        ix /= len;
+        iy /= len;
+
+        const wantTurbo = (keys['ShiftLeft'] || keys['ShiftRight']) && state.playerTurbo > 1;
+        const speedStatMult = 0.86 + (me.speed / 100) * 0.26;
+        const mult = wantTurbo ? CONFIG.TURBO_MULT : 1.0;
+        const targetVx = ix * CONFIG.BASE_SPEED * speedStatMult * mult;
+        const targetVy = iy * CONFIG.BASE_SPEED * speedStatMult * mult;
+
+        const accel = wantTurbo ? 24 : 20;
+        me.vx += (targetVx - me.vx) * Math.min(1, accel * dt);
+        me.vy += (targetVy - me.vy) * Math.min(1, accel * dt);
+        if (Math.abs(ix) > 0.1) me.facing = ix > 0 ? 1 : -1;
+
+        if (wantTurbo) {
+          state.playerTurbo = Math.max(0, state.playerTurbo - CONFIG.TURBO_DRAIN_RATE * dt);
+        } else {
+          state.playerTurbo = Math.min(100, state.playerTurbo + CONFIG.TURBO_REGEN_RATE * dt);
+        }
+      } else {
+        me.vx *= Math.pow(0.0008, dt);
+        me.vy *= Math.pow(0.0008, dt);
+        state.playerTurbo = Math.min(100, state.playerTurbo + CONFIG.TURBO_REGEN_RATE * dt);
+      }
+    }
+
+    function updateAiPlayers(dt) {
+      const diffMult = state.cpuDiff === 'legend' ? 1.14 : (state.cpuDiff === 'allstar' ? 0.99 : 0.82);
+
+      state.players.forEach((p, idx) => {
+        if (p.fouledOut) return;
+        if (p.side === 'player' && idx === state.controlledIdx) return;
+        if (p.knockdownTimer > 0 || p.z > 0) return;
+
+        let tx = p.x, ty = p.y;
+        const isPlayerSide = p.side === 'player';
+        const attackHoopX = isPlayerSide ? CONFIG.COURT.RIGHT_HOOP_X : CONFIG.COURT.LEFT_HOOP_X;
+        const defendHoopX = isPlayerSide ? CONFIG.COURT.LEFT_HOOP_X : CONFIG.COURT.RIGHT_HOOP_X;
+        const hoopY = CONFIG.COURT.HOOP_Y;
+
+        if (state.ball.inFlight && state.ball.flightType === 'rebound') {
+          tx = state.ball.targetX;
+          ty = state.ball.targetY;
+        } else if (!state.ball.inFlight && state.ball.owner === idx) {
+          const driveTargetX = attackHoopX + (isPlayerSide ? -155 : 155);
+          const driveTargetY = hoopY + (idx % 2 === 0 ? -65 : 65);
+          tx = driveTargetX;
+          ty = driveTargetY;
+
+          const distToHoop = Math.hypot(attackHoopX - p.x, hoopY - p.y);
+          const inRange = distToHoop < (p.three >= 87 ? 355 : 220);
+          if (inRange && state.graceTimer <= 0 && Math.random() < 0.032 * diffMult) {
+            launchShot(idx);
+            return;
+          }
+          const mateIdx = idx === 2 ? 3 : 2;
+          const mate = state.players[mateIdx];
+          if (mate && Math.hypot(attackHoopX - mate.x, hoopY - mate.y) < distToHoop - 90 && Math.random() < 0.025) {
+            launchPass(idx, mateIdx);
+            return;
+          }
+        } else if (!state.ball.inFlight && state.ball.owner >= 0) {
+          const holder = state.players[state.ball.owner];
+          if (holder.side === p.side) {
+            const spotX = attackHoopX + (isPlayerSide ? -240 : 240);
+            const spotY = idx % 2 === 0 ? 205 : 525;
+            tx = spotX;
+            ty = spotY;
+          } else {
+            const oppPlayers = state.players.filter(o => o.side !== p.side && !o.fouledOut);
+            const mark = oppPlayers[idx % oppPlayers.length] || holder;
+            tx = mark.x * 0.72 + defendHoopX * 0.28;
+            ty = mark.y * 0.78 + hoopY * 0.22;
+
+            if (p.side === 'cpu' && mark === holder && Math.hypot(holder.x - p.x, holder.y - p.y) < 52 && Math.random() < 0.018 * diffMult) {
+              attemptSteal(idx);
+            }
+          }
+        }
+
+        const dx = tx - p.x;
+        const dy = ty - p.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist > 8) {
+          const spd = CONFIG.BASE_SPEED * (p.side === 'cpu' ? 0.88 * diffMult : 0.92);
+          p.vx += ((dx / dist) * spd - p.vx) * Math.min(1, 10 * dt);
+          p.vy += ((dy / dist) * spd - p.vy) * Math.min(1, 10 * dt);
+          if (Math.abs(dx) > 4) p.facing = dx > 0 ? 1 : -1;
+        } else {
+          p.vx *= 0.85;
+          p.vy *= 0.85;
+        }
+      });
+    }
+
+    function updatePhysics(dt) {
+      if (state.graceTimer > 0) state.graceTimer = Math.max(0, state.graceTimer - dt);
+      if (state.rimFlexLeft > 0) state.rimFlexLeft = Math.max(0, state.rimFlexLeft - dt * 2.4);
+      if (state.rimFlexRight > 0) state.rimFlexRight = Math.max(0, state.rimFlexRight - dt * 2.4);
+      if (state.shakeTimer > 0) state.shakeTimer = Math.max(0, state.shakeTimer - dt);
+
+      if (state.announcerTimer > 0) {
+        state.announcerTimer -= dt;
+        if (state.announcerTimer <= 0) {
+          document.getElementById('announcerBanner').classList.add('hidden');
+        }
+      }
+
+      state.clock -= dt;
+      state.mathTimer -= dt;
+
+      if (state.clock <= 0) {
+        state.clock = 0;
+        state.mathTimer = 0;
+        updateHud();
+        state.pendingQuarterEnd = true;
+        triggerMathTimeout();
+        return;
+      }
+
+      if (state.mathTimer <= 0) {
+        triggerMathTimeout();
+        return;
+      }
+
+      handleHumanMovement(dt);
+      updateAiPlayers(dt);
+
+      state.players.forEach(p => {
+        if (p.fouledOut) return;
+        if (p.stunTimer > 0) p.stunTimer = Math.max(0, p.stunTimer - dt);
+        if (p.knockdownTimer > 0) p.knockdownTimer = Math.max(0, p.knockdownTimer - dt);
+        if (p.blockingTimer > 0) {
+          p.blockingTimer = Math.max(0, p.blockingTimer - dt);
+          p.swatSwing = Math.min(1, p.swatSwing + dt * 4.5);
+        }
+        if (p.dunkTimer > 0) p.dunkTimer = Math.max(0, p.dunkTimer - dt);
+
+        const timeScale = (p.dunkTimer > 0 && p.z > 25) ? 0.62 : 1.0;
+
+        p.x += p.vx * dt * timeScale;
+        p.y += p.vy * dt * timeScale;
+
+        if (p.z > 0 || p.vz > 0) {
+          p.z += p.vz * dt * timeScale;
+          p.vz -= CONFIG.GRAVITY * dt * timeScale;
+          if (p.z <= 0) {
+            p.z = 0;
+            p.vz = 0;
+            p.dunkType = null;
+            p.dunkTimer = 0;
+          }
+        }
+
+        p.x = Math.max(CONFIG.COURT.LEFT_X + 22, Math.min(CONFIG.COURT.RIGHT_X - 22, p.x));
+        p.y = Math.max(CONFIG.COURT.TOP_Y + 18, Math.min(CONFIG.COURT.BOTTOM_Y - 12, p.y));
+
+        const moveSpd = Math.hypot(p.vx, p.vy);
+        if (p.z === 0 && moveSpd > 15) {
+          p.runPhase += moveSpd * dt * 0.055;
+        }
+      });
+
+      const b = state.ball;
+      if (b.inFlight) {
+        b.flightTime += dt;
+        const t = Math.min(1, b.flightTime / b.flightDuration);
+
+        if (b.flightType === 'dunk') {
+          const dunker = state.players[b.shooterIdx];
+          if (dunker) {
+            b.x = dunker.x + dunker.facing * 18;
+            b.y = dunker.y;
+            b.z = dunker.z + (t < 0.55 ? 74 : 46);
+          }
+        } else {
+          b.x = b.startX + (b.targetX - b.startX) * t;
+          b.y = b.startY + (b.targetY - b.startY) * t;
+          const arcPeak = b.flightType === 'shot' ? 145 : (b.flightType === 'alley_lob' ? 115 : (b.flightType === 'rebound' ? 75 : 35));
+          b.z = b.startZ + (b.targetZ - b.startZ) * t + Math.sin(t * Math.PI) * arcPeak;
+        }
+
+        checkAerialBlockCollision();
+
+        if (t >= 1 && b.inFlight) {
+          if (b.flightType === 'pass') {
+            b.inFlight = false;
+            b.flightType = null;
+            b.owner = b.shooterIdx;
+          } else if (b.flightType === 'alley_lob') {
+            const finisher = state.players[b.shooterIdx];
+            const isPlayerSide = finisher ? finisher.side === 'player' : true;
+            const hoopX = isPlayerSide ? CONFIG.COURT.RIGHT_HOOP_X : CONFIG.COURT.LEFT_HOOP_X;
+            const hoopY = CONFIG.COURT.HOOP_Y;
+            const distFromCatch = finisher ? Math.hypot(finisher.x - b.targetX, finisher.y - b.targetY) : 999;
+
+            if (!finisher || finisher.knockdownTimer > 0 || distFromCatch > 75) {
+              b.flightType = 'rebound';
+              b.shooterIdx = -1;
+              b.startX = b.x;
+              b.startY = b.y;
+              b.startZ = b.z;
+              b.targetX = hoopX + (isPlayerSide ? -60 : 60);
+              b.targetY = hoopY + (Math.random() - 0.5) * 90;
+              b.targetZ = 16;
+              b.flightTime = 0;
+              b.flightDuration = 0.5;
+              triggerAnnouncer('ERRANT LOB!', 1.0);
+              playTone(210, 'square', 0.14, 0.11, 140);
+            } else {
+              const teamStreak = isPlayerSide ? state.playerStreak : state.cpuStreak;
+              let makeProb = CONFIG.SHOT_TUNING.dunkBase + 0.08 + ((finisher.dunk - 75) * 0.004);
+              if (teamStreak >= CONFIG.ON_FIRE_REQ) makeProb += CONFIG.SHOT_TUNING.onFireBoost;
+              else if (teamStreak >= CONFIG.HEATING_UP_REQ) makeProb += 0.08;
+              makeProb = Math.max(0.35, Math.min(0.96, makeProb));
+
+              const slamDur = 0.28;
+              const rimFrontX = hoopX + (isPlayerSide ? -16 : 16);
+              finisher.vx = (rimFrontX - finisher.x) / slamDur;
+              finisher.vy = (hoopY - finisher.y) / slamDur;
+              finisher.vz = Math.max(finisher.vz, 120);
+              finisher.dunkTimer = slamDur + 0.2;
+
+              b.flightType = 'dunk';
+              b.points = 2;
+              b.willMake = Math.random() < makeProb;
+              b.startX = b.x;
+              b.startY = b.y;
+              b.startZ = b.z;
+              b.targetX = hoopX;
+              b.targetY = hoopY;
+              b.targetZ = 108;
+              b.flightTime = 0;
+              b.flightDuration = slamDur;
+
+              spawnParticles(b.x, b.y - b.z * 0.5, 16, '#facc15', 16, 5);
+              triggerAnnouncer('ALLEY-OOP SLAM!', 1.35);
+              playTone(260, 'sawtooth', 0.2, 0.15, 620);
+            }
+          } else if (b.flightType === 'shot' || b.flightType === 'dunk') {
+            resolveBasket();
+          } else if (b.flightType === 'rebound') {
+            let bestIdx = 0;
+            let bestDist = 9999;
+            state.players.forEach((pl, i) => {
+              if (!pl.fouledOut && pl.knockdownTimer <= 0) {
+                const d = Math.hypot(pl.x - b.x, pl.y - b.y);
+                if (d < bestDist) {
+                  bestDist = d;
+                  bestIdx = i;
+                }
+              }
+            });
+            b.inFlight = false;
+            b.flightType = null;
+            b.owner = bestIdx;
+            if (state.players[bestIdx].side === 'player') {
+              state.controlledIdx = bestIdx;
+            }
+            playTone(420, 'sine', 0.08, 0.09);
+          }
+        }
+      } else if (b.owner >= 0 && state.players[b.owner] && !state.players[b.owner].fouledOut) {
+        const holder = state.players[b.owner];
+        const dribbleBounce = holder.z === 0 ? Math.abs(Math.sin(holder.runPhase * 1.4)) * 22 : 0;
+        b.x = holder.x + holder.facing * 16;
+        b.y = holder.y + 4;
+        b.z = holder.z + 36 - dribbleBounce;
+      }
+
+      for (let i = state.particles.length - 1; i >= 0; i--) {
+        const pt = state.particles[i];
+        pt.x += pt.vx * dt;
+        pt.y += pt.vy * dt;
+        pt.vy += 260 * dt;
+        pt.life -= dt;
+        if (pt.life <= 0) state.particles.splice(i, 1);
+      }
+
+      updateHud();
+    }
+
+    function endCurrentQuarter() {
+      const modal = document.getElementById('periodModal');
+      const badge = document.getElementById('periodBadge');
+      const title = document.getElementById('periodTitle');
+      const btn = document.getElementById('periodContinueBtn');
+
+      const pTeam = getTeamById(state.playerTeamId);
+      const cTeam = getTeamById(state.cpuTeamId);
+
+      document.getElementById('periodPlayerName').textContent = pTeam.name.toUpperCase();
+      document.getElementById('periodCpuName').textContent = cTeam.name.toUpperCase();
+      document.getElementById('periodPlayerScore').textContent = state.playerScore;
+      document.getElementById('periodCpuScore').textContent = state.cpuScore;
+      document.getElementById('statDunks').textContent = state.dunksCount;
+      document.getElementById('statBlocks').textContent = state.blocksCount;
+      document.getElementById('statMath').textContent = `${state.mathCorrect} / ${state.mathTotal}`;
+
+      if (state.quarter < 4) {
+        state.mode = 'PERIOD_BREAK';
+        badge.textContent = `END OF QUARTER ${state.quarter}`;
+        title.textContent = state.quarter === 2 ? 'HALFTIME REPORT' : 'QUARTER BREAK';
+        btn.textContent = `START QUARTER ${state.quarter + 1}`;
+      } else if (state.playerScore === state.cpuScore) {
+        state.mode = 'PERIOD_BREAK';
+        badge.textContent = 'TIED AFTER REGULATION!';
+        title.textContent = 'OVERTIME SHOWDOWN';
+        btn.textContent = 'START OVERTIME';
+      } else {
+        state.mode = 'GAME_OVER';
+        const won = state.playerScore > state.cpuScore;
+        badge.textContent = 'FINAL BUZZER';
+        title.textContent = won ? 'VICTORY! YOU WIN!' : 'FINAL SCORE';
+        btn.textContent = 'PLAY AGAIN / TEAM SELECT';
+      }
+
+      modal.classList.remove('hidden');
+      playTone(330, 'sawtooth', 0.45, 0.16, 220);
+    }
+
+    // =========================================================================
+    // 10. CANVAS RENDERING (HEIGHTS ALGEBRA CENTER COURT, HOOPS, PLAYERS & BALL)
+    // =========================================================================
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const VIRTUAL_W = 1280;
+    const VIRTUAL_H = 660;
+
+    function resizeCanvas() {
+      const rect = canvas.parentElement.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+      canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+    }
+    window.addEventListener('resize', resizeCanvas);
+
+    function renderCourt() {
+      ctx.fillStyle = '#080c14';
+      ctx.fillRect(0, 0, VIRTUAL_W, VIRTUAL_H);
+
+      const grad = ctx.createLinearGradient(0, 82, 0, 646);
+      grad.addColorStop(0, '#c88a4b');
+      grad.addColorStop(0.5, '#dea05e');
+      grad.addColorStop(1, '#b6783b');
+      ctx.fillStyle = grad;
+      ctx.fillRect(10, 84, 1260, 562);
+
+      ctx.strokeStyle = 'rgba(120, 65, 20, 0.16)';
+      ctx.lineWidth = 1;
+      for (let py = 104; py < 640; py += 22) {
+        ctx.beginPath();
+        ctx.moveTo(10, py);
+        ctx.lineTo(1270, py);
+        ctx.stroke();
+      }
+
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 4;
+      ctx.strokeRect(18, 92, 1244, 546);
+
+      ctx.beginPath();
+      ctx.moveTo(640, 92);
+      ctx.lineTo(640, 638);
+      ctx.stroke();
+
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.14)';
+      ctx.beginPath();
+      ctx.ellipse(640, 365, 118, 76, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      const pTeam = getTeamById(state.playerTeamId);
+      const cTeam = getTeamById(state.cpuTeamId);
+
+      ctx.fillStyle = pTeam.primary + 'AA';
+      ctx.fillRect(18, 272, 190, 186);
+      ctx.strokeRect(18, 272, 190, 186);
+
+      ctx.fillStyle = cTeam.primary + 'AA';
+      ctx.fillRect(1072, 272, 190, 186);
+      ctx.strokeRect(1072, 272, 190, 186);
+
+      ctx.beginPath();
+      ctx.ellipse(208, 365, 62, 93, 0, -Math.PI / 2, Math.PI / 2);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.ellipse(1072, 365, 62, 93, 0, Math.PI / 2, -Math.PI / 2);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.ellipse(CONFIG.COURT.LEFT_HOOP_X, CONFIG.COURT.HOOP_Y, CONFIG.THREE_PT_RADIUS, 245, 0, -Math.PI / 2.15, Math.PI / 2.15);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.ellipse(CONFIG.COURT.RIGHT_HOOP_X, CONFIG.COURT.HOOP_Y, CONFIG.THREE_PT_RADIUS, 245, 0, Math.PI - Math.PI / 2.15, Math.PI + Math.PI / 2.15);
+      ctx.stroke();
+
+      ctx.save();
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = '900 26px "Russo One", sans-serif';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+      ctx.fillText('HEIGHTS', 640, 352);
+      ctx.fillText('ALGEBRA', 640, 380);
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.58)';
+      ctx.fillText('HEIGHTS', 640, 351);
+      ctx.fillText('ALGEBRA', 640, 379);
+      ctx.restore();
+    }
+
+    function renderHoop(isLeft) {
+      const hoopX = isLeft ? CONFIG.COURT.LEFT_HOOP_X : CONFIG.COURT.RIGHT_HOOP_X;
+      const hoopY = CONFIG.COURT.HOOP_Y;
+      const flex = isLeft ? state.rimFlexLeft : state.rimFlexRight;
+      const rimDip = Math.sin(flex * Math.PI) * 10;
+
+      const boardX = isLeft ? hoopX - 24 : hoopX + 24;
+      const rimCenterX = isLeft ? hoopX + 8 : hoopX - 8;
+      const rimY = hoopY - 108 + rimDip;
+
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(isLeft ? boardX - 18 : boardX + 6, hoopY - 145, 12, 145);
+
+      ctx.fillStyle = 'rgba(226, 232, 240, 0.35)';
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 3;
+      ctx.fillRect(boardX - 4, hoopY - 154, 8, 66);
+      ctx.strokeRect(boardX - 4, hoopY - 154, 8, 66);
+
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+      ctx.lineWidth = 2;
+      for (let i = -14; i <= 14; i += 7) {
+        ctx.beginPath();
+        ctx.moveTo(rimCenterX + i, rimY);
+        ctx.lineTo(rimCenterX + i * 0.65, rimY + 28);
+        ctx.stroke();
+      }
+
+      ctx.strokeStyle = '#ea580c';
+      ctx.lineWidth = 4.5;
+      ctx.beginPath();
+      ctx.ellipse(rimCenterX, rimY, 20, 7, 0, 0, Math.PI * 2);
+      ctx.stroke();
+
+      if (flex > 0.05) {
+        ctx.strokeStyle = `rgba(250, 204, 21, ${flex * 0.85})`;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(rimCenterX, rimY, (1 - flex) * 65 + 18, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    }
+
+    function renderPlayer(p, idx) {
+      if (p.fouledOut) return;
+      const s = CONFIG.PLAYER_SCALE * (p.heightScale || 1.0);
+      const groundY = p.y;
+      const bodyY = p.y - p.z * 0.88;
+      const isControlled = p.side === 'player' && idx === state.controlledIdx;
+      const teamStreak = p.side === 'player' ? state.playerStreak : state.cpuStreak;
+      const isOnFire = teamStreak >= CONFIG.ON_FIRE_REQ;
+
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.34)';
+      ctx.beginPath();
+      ctx.ellipse(p.x, groundY + 4, 20 * s, 9 * s, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      if (isControlled) {
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.ellipse(p.x, groundY + 4, 26 * s, 12 * s, 0, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      if (isOnFire) {
+        ctx.strokeStyle = 'rgba(249, 115, 22, 0.9)';
+        ctx.lineWidth = 3.5;
+        ctx.beginPath();
+        ctx.ellipse(p.x, groundY + 4, 29 * s, 14 * s, 0, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      if (p.dunkTimer > 0 && p.z > 10) {
+        ctx.fillStyle = 'rgba(251, 146, 60, 0.25)';
+        ctx.beginPath();
+        ctx.arc(p.x - p.vx * 0.04, bodyY - 26 * s + p.vz * 0.03, 24 * s, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.save();
+      ctx.translate(p.x, bodyY);
+
+      if (p.knockdownTimer > 0) {
+        ctx.rotate((Math.PI / 2) * p.knockdownDir);
+        ctx.translate(0, -10);
+      } else if (p.dunkTimer > 0) {
+        const lean = p.vz > 0 ? -0.14 * p.facing : 0.24 * p.facing;
+        ctx.rotate(lean);
+      }
+
+      const stride = p.z === 0 ? Math.sin(p.runPhase) * 8 * s : 5 * s;
+
+      ctx.strokeStyle = p.skin;
+      ctx.lineWidth = 7 * s;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(-6 * s, -22 * s);
+      ctx.lineTo((-7 - stride * 0.6) * s, -4 * s);
+      ctx.moveTo(6 * s, -22 * s);
+      ctx.lineTo((7 + stride * 0.6) * s, -4 * s);
+      ctx.stroke();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect((-11 - stride * 0.6) * s, -6 * s, 9 * s, 5 * s);
+      ctx.fillRect((3 + stride * 0.6) * s, -6 * s, 9 * s, 5 * s);
+
+      ctx.fillStyle = p.primary;
+      ctx.beginPath();
+      ctx.roundRect(-13 * s, -34 * s, 26 * s, 15 * s, 4 * s);
+      ctx.fill();
+
+      ctx.fillStyle = p.primary;
+      ctx.strokeStyle = p.secondary;
+      ctx.lineWidth = 2 * s;
+      ctx.beginPath();
+      ctx.roundRect(-14 * s, -58 * s, 28 * s, 26 * s, 5 * s);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = `900 ${Math.round(12 * s)}px "Russo One", sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.fillText(String(p.num), 0, -40 * s);
+
+      ctx.strokeStyle = p.skin;
+      ctx.lineWidth = 6.5 * s;
+      ctx.beginPath();
+      if (p.dunkTimer > 0) {
+        const armAngle = p.vz > 0 ? -2.2 : -0.9;
+        ctx.moveTo(8 * p.facing * s, -54 * s);
+        ctx.lineTo((8 * p.facing + Math.cos(armAngle) * 24 * p.facing) * s, (-54 + Math.sin(armAngle) * 24) * s);
+      } else if (p.blockingTimer > 0) {
+        const swatX = (10 + p.swatSwing * 14) * p.facing * s;
+        ctx.moveTo(8 * p.facing * s, -54 * s);
+        ctx.lineTo(swatX, -82 * s);
+      } else {
+        ctx.moveTo(-13 * s, -53 * s);
+        ctx.lineTo((-17 + stride * 0.4) * s, -36 * s);
+        ctx.moveTo(13 * s, -53 * s);
+        ctx.lineTo((17 - stride * 0.4) * s, -36 * s);
+      }
+      ctx.stroke();
+
+      ctx.fillStyle = p.skin;
+      ctx.beginPath();
+      ctx.arc(0, -69 * s, 11.5 * s, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#111827';
+      ctx.beginPath();
+      ctx.arc(0, -72 * s, 11.5 * s, Math.PI, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(4.5 * p.facing * s, -69 * s, 2 * s, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+
+      ctx.fillStyle = isControlled ? '#38bdf8' : 'rgba(255,255,255,0.88)';
+      ctx.font = '800 11px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      const lastName = p.name.split(' ').pop().toUpperCase();
+      const foulTag = p.side === 'player' && p.fouls > 0 ? ` [${p.fouls}F]` : '';
+      ctx.fillText(`${lastName}${foulTag}`, p.x, bodyY - 86 * s);
+    }
+
+    function renderBall() {
+      const b = state.ball;
+      const bx = b.x;
+      const by = b.y - b.z * 0.88;
+      let ballOnFire = false;
+      if (!b.inFlight && b.owner >= 0 && state.players[b.owner]) {
+        const ownerSide = state.players[b.owner].side;
+        ballOnFire = ownerSide === 'player'
+          ? state.playerStreak >= CONFIG.ON_FIRE_REQ
+          : state.cpuStreak >= CONFIG.ON_FIRE_REQ;
+      } else if (b.inFlight && b.shooterIdx >= 0 && state.players[b.shooterIdx]) {
+        const shooterSide = state.players[b.shooterIdx].side;
+        ballOnFire = shooterSide === 'player'
+          ? state.playerStreak >= CONFIG.ON_FIRE_REQ
+          : state.cpuStreak >= CONFIG.ON_FIRE_REQ;
+      }
+
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+      ctx.beginPath();
+      ctx.ellipse(bx, b.y + 3, 9, 4.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      if (ballOnFire) {
+        const flameGrad = ctx.createRadialGradient(bx, by, 4, bx, by, 22);
+        flameGrad.addColorStop(0, 'rgba(254, 240, 138, 0.95)');
+        flameGrad.addColorStop(0.5, 'rgba(249, 115, 22, 0.75)');
+        flameGrad.addColorStop(1, 'rgba(239, 68, 68, 0)');
+        ctx.fillStyle = flameGrad;
+        ctx.beginPath();
+        ctx.arc(bx, by, 22, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.fillStyle = ballOnFire ? '#fb923c' : '#ea580c';
+      ctx.strokeStyle = '#111827';
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      ctx.arc(bx, by, 8.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(bx - 8, by);
+      ctx.lineTo(bx + 8, by);
+      ctx.moveTo(bx, by - 8);
+      ctx.lineTo(bx, by + 8);
+      ctx.stroke();
+    }
+
+    function renderParticles() {
+      state.particles.forEach(pt => {
+        ctx.globalAlpha = Math.max(0, pt.life / pt.maxLife);
+        ctx.fillStyle = pt.color;
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, pt.size, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+    }
+
+    function render() {
+      const cw = canvas.width;
+      const ch = canvas.height;
+      ctx.clearRect(0, 0, cw, ch);
+
+      const scale = Math.min(cw / VIRTUAL_W, ch / VIRTUAL_H);
+      const offsetX = (cw - VIRTUAL_W * scale) * 0.5;
+      const offsetY = (ch - VIRTUAL_H * scale) * 0.5;
+
+      ctx.save();
+      ctx.translate(offsetX, offsetY);
+      ctx.scale(scale, scale);
+
+      if (state.shakeTimer > 0) {
+        const mag = state.shakeTimer * 26;
+        ctx.translate((Math.random() - 0.5) * mag, (Math.random() - 0.5) * mag);
+      }
+
+      renderCourt();
+      renderHoop(true);
+      renderHoop(false);
+
+      const sorted = state.players.map((p, idx) => ({ p, idx })).sort((a, b) => a.p.y - b.p.y);
+      sorted.forEach(item => renderPlayer(item.p, item.idx));
+
+      renderBall();
+      renderParticles();
+
+      ctx.restore();
+    }
+
+    // =========================================================================
+    // 11. MAIN ANIMATION LOOP & EVENT LISTENERS
+    // =========================================================================
+    let lastTimestamp = 0;
+    function gameLoop(timestamp) {
+      if (!lastTimestamp) lastTimestamp = timestamp;
+      const dt = Math.min(0.05, (timestamp - lastTimestamp) / 1000);
+      lastTimestamp = timestamp;
+
+      if (state.mode === 'PLAYING') {
+        updatePhysics(dt);
+      }
+      render();
+      requestAnimationFrame(gameLoop);
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (document.activeElement && document.activeElement.id === 'teamSearchInput') {
+        if (e.code === 'Escape') {
+          document.getElementById('teamSelectModal').classList.add('hidden');
+        }
+        return;
+      }
+
+      if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.code)) {
+        e.preventDefault();
+      }
+      keys[e.code] = true;
+
+      if (e.code === 'Escape') {
+        if (!document.getElementById('topicSelectModal').classList.contains('hidden')) {
+          closeTopicSelectModal();
+          return;
+        }
+        if (!document.getElementById('teamSelectModal').classList.contains('hidden')) {
+          document.getElementById('teamSelectModal').classList.add('hidden');
+          return;
+        }
+      }
+
+      if (state.mode === 'PLAYING' && !e.repeat) {
+        if (e.code === 'Space') handlePlayerAction('shoot');
+        else if (e.code === 'KeyE') handlePlayerAction('pass');
+        else if (e.code === 'KeyF' || e.code === 'Tab') handlePlayerAction('switch');
+        else if (e.code === 'KeyP') togglePause();
+      } else if (state.mode === 'PAUSED' && !e.repeat && e.code === 'KeyP') {
+        if (document.getElementById('topicSelectModal').classList.contains('hidden')) {
+          togglePause();
+        }
+      } else if (state.mode === 'MATH_TIMEOUT' && !e.repeat && state.mathAnswered) {
+        if (e.code === 'Enter' || e.code === 'Space') {
+          resumeFromMathTimeout();
+        }
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      keys[e.code] = false;
+    });
+
+    window.addEventListener('blur', () => {
+      Object.keys(keys).forEach(k => { keys[k] = false; });
+    });
+
+    function togglePause() {
+      if (state.mode === 'PLAYING') {
+        state.mode = 'PAUSED';
+        document.getElementById('pauseModal').classList.remove('hidden');
+      } else if (state.mode === 'PAUSED') {
+        state.mode = 'PLAYING';
+        document.getElementById('pauseModal').classList.add('hidden');
+      }
+    }
+
+    document.querySelectorAll('.cpu-diff-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.cpuDiff = btn.dataset.cpu;
+        playTone(480, 'sine', 0.06, 0.08);
+        savePreferences();
+        refreshMenuUI();
+      });
+    });
+
+    document.getElementById('openPlayerSelectBtn').addEventListener('click', () => openTeamSelectModal('player'));
+    document.getElementById('openCpuSelectBtn').addEventListener('click', () => openTeamSelectModal('cpu'));
+    document.getElementById('closeTeamSelectBtn').addEventListener('click', () => {
+      document.getElementById('teamSelectModal').classList.add('hidden');
+    });
+
+    document.getElementById('openTopicSelectBtn').addEventListener('click', () => openTopicSelectModal('MENU'));
+    document.getElementById('hudTopicBtn').addEventListener('click', () => openTopicSelectModal('PLAYING'));
+    document.getElementById('pauseChangeTopicBtn').addEventListener('click', () => openTopicSelectModal('PAUSE_MODAL'));
+    document.getElementById('mathSwitchTopicBtn').addEventListener('click', () => openTopicSelectModal('MATH_TIMEOUT'));
+    document.getElementById('closeTopicSelectBtn').addEventListener('click', closeTopicSelectModal);
+
+    document.getElementById('teamSearchInput').addEventListener('input', (e) => {
+      state.teamSearchQuery = e.target.value;
+      renderTeamSelectGrid();
+    });
+
+    document.getElementById('toggleSoundBtn').addEventListener('click', () => {
+      state.soundOn = !state.soundOn;
+      savePreferences();
+      refreshMenuUI();
+    });
+
+    document.getElementById('startMatchBtn').addEventListener('click', startMatch);
+    document.getElementById('mathNextBtn').addEventListener('click', resumeFromMathTimeout);
+    document.getElementById('hudPauseBtn').addEventListener('click', togglePause);
+    document.getElementById('resumeGameBtn').addEventListener('click', togglePause);
+
+    document.getElementById('quitToMenuBtn').addEventListener('click', () => {
+      state.mode = 'MENU';
+      document.getElementById('pauseModal').classList.add('hidden');
+      document.getElementById('topHud').classList.add('hidden');
+      document.getElementById('bottomControlsBar').classList.add('hidden');
+      document.getElementById('menuOverlay').classList.remove('hidden');
+      refreshMenuUI();
+    });
+
+    document.getElementById('periodContinueBtn').addEventListener('click', () => {
+      document.getElementById('periodModal').classList.add('hidden');
+      if (state.mode === 'GAME_OVER') {
+        state.mode = 'MENU';
+        document.getElementById('topHud').classList.add('hidden');
+        document.getElementById('bottomControlsBar').classList.add('hidden');
+        document.getElementById('menuOverlay').classList.remove('hidden');
+        refreshMenuUI();
+      } else {
+        state.quarter++;
+        state.clock = state.quarter <= 4 ? state.quarterLen : 60;
+        state.mathTimer = CONFIG.MATH_INTERVAL;
+        state.pendingQuarterEnd = false;
+        setupCourtPositions(state.quarter % 2 === 1 ? 'player' : 'cpu');
+        state.mode = 'PLAYING';
+        updateHud();
+        triggerAnnouncer(state.quarter <= 4 ? `QUARTER ${state.quarter}!` : 'OVERTIME!', 1.2);
+      }
+    });
+
+    window.onload = function () {
+      loadPreferences();
+      refreshMenuUI();
+      resizeCanvas();
+      requestAnimationFrame(gameLoop);
+    };
+  </script>
+</body>
+</html>

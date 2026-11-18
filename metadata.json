@@ -1,0 +1,6 @@
+{
+  "name": "NBA Jam: On Fire Edition (2026-27 Season)",
+  "description": "2v2 arcade basketball game featuring 2026-27 NBA duos, aerial dunk packages, and 300 Algebra 1 OST Playbook questions across 10 topics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
