@@ -38,7 +38,7 @@ export function StatsDrawerModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/88 backdrop-blur-md"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/90"
       role="dialog"
       aria-modal="true"
       aria-label="OST Playbook Student Progress"
@@ -85,7 +85,7 @@ export function StatsDrawerModal({
         </div>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-5">
+        <div className="flex-1 overflow-y-auto overscroll-y-contain touch-pan-y p-4 sm:p-5 space-y-5">
           {/* Top Overview Cards: Session (All Topics) + Lifetime (All Topics) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Session Card */}

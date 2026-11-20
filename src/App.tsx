@@ -460,7 +460,7 @@ function StudentTrackerShell() {
         title="NBA Jam: On Fire Edition (2026-27 Season)"
         src="./heights-jam.html"
         onLoad={() => iframeRef.current?.contentWindow?.focus()}
-        className="w-full flex-1 border-0 block bg-[#080c14]"
+        className="w-full flex-1 min-h-0 border-0 block bg-[#080c14]"
       />
 
       {/* ALL-TOPICS & LIFETIME PROGRESS MODAL */}
