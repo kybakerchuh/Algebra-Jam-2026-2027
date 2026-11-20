@@ -21,7 +21,6 @@
       padding: 0;
       width: 100%;
       height: 100%;
-      height: 100dvh;
       overflow: hidden;
       overscroll-behavior: none;
       background: #080c14;
@@ -179,7 +178,7 @@
     }
   </style>
 </head>
-<body class="w-screen h-screen h-dvh overflow-hidden flex flex-col bg-[#080c14]">
+<body class="w-full h-full overflow-hidden flex flex-col bg-[#080c14]">
 
   <!-- TOP ARCADE SCOREBOARD HUD (IN-GAME) -->
   <header id="topHud" class="hidden w-full bg-gradient-to-r from-[#070b14] via-[#0f172a] to-[#070b14] border-b-2 border-orange-500/50 px-2 sm:px-3 py-1 sm:py-1.5 z-20 shrink-0">
@@ -255,8 +254,9 @@
     <!-- ======================================================================= -->
     <!-- MAIN HUB OVERLAY                                                        -->
     <!-- ======================================================================= -->
-    <section id="menuOverlay" class="mobile-scroll absolute inset-0 z-30 block px-3 pt-3 pb-0 sm:px-6 sm:pt-6 sm:pb-0 lg:p-6 bg-[#070b14]">
-      <div class="w-full max-w-5xl mx-auto min-h-full flex flex-col justify-start lg:justify-center gap-3.5 sm:gap-4">
+    <section id="menuOverlay" class="absolute inset-0 z-30 flex flex-col overflow-hidden bg-[#070b14]">
+      <div id="menuScrollArea" class="mobile-scroll flex-1 min-h-0 lg:flex lg:flex-col px-3 pt-3 pb-4 sm:px-6 sm:pt-6">
+        <div class="w-full max-w-5xl mx-auto lg:my-auto flex flex-col gap-3.5 sm:gap-4 pb-2">
         <!-- HEADER TITLE -->
         <div class="text-center relative flex flex-col items-center">
           <button id="toggleSoundBtn" class="self-end sm:self-auto sm:absolute sm:right-0 sm:top-1 mb-1 sm:mb-0 px-3 py-1.5 rounded-xl bg-[#0e1525] hover:bg-slate-800 border border-slate-700/80 text-xs font-bold text-slate-300 cursor-pointer">
@@ -369,24 +369,34 @@
           </div>
         </div>
 
-        <!-- BOTTOM BAR: CONTROLS SUMMARY & TIP OFF! BUTTON -->
-        <div class="rounded-2xl bg-[#0b101d] border border-slate-800 px-4 py-2.5 sm:py-3 flex items-center text-xs sm:text-sm text-slate-300 leading-relaxed">
-          <div id="menuControlsText">
-            <span class="font-arcade text-amber-400 tracking-wider mr-1.5">CONTROLS:</span>
-            <span class="text-white font-bold">WASD / Arrows</span> Move •
-            <span class="text-white font-bold">SHIFT</span> Turbo •
-            <span class="text-white font-bold">SPACE</span> Shoot / Dunk / Block •
-            <span class="text-white font-bold">E</span> Pass / Steal •
-            <span class="text-white font-bold">SHIFT + E</span> Alley-Oop •
-            <span class="text-white font-bold">F / TAB</span> Switch Player •
-            <span class="text-white font-bold">P</span> Pause
+        <!-- BOTTOM BAR: CONTROLS SUMMARY & DESKTOP TIP OFF! BUTTON -->
+        <div class="flex flex-col lg:flex-row items-stretch lg:items-center gap-3 lg:gap-4">
+          <div class="flex-1 rounded-2xl bg-[#0b101d] border border-slate-800 px-4 py-2.5 sm:py-3 flex items-center text-xs sm:text-sm text-slate-300 leading-relaxed">
+            <div id="menuControlsText">
+              <span class="font-arcade text-amber-400 tracking-wider mr-1.5">CONTROLS:</span>
+              <span class="text-white font-bold">WASD / Arrows</span> Move •
+              <span class="text-white font-bold">SHIFT</span> Turbo •
+              <span class="text-white font-bold">SPACE</span> Shoot / Dunk / Block •
+              <span class="text-white font-bold">E</span> Pass / Steal •
+              <span class="text-white font-bold">SHIFT + E</span> Alley-Oop •
+              <span class="text-white font-bold">F / TAB</span> Switch Player •
+              <span class="text-white font-bold">P</span> Pause
+            </div>
+          </div>
+          <div class="hidden lg:block shrink-0">
+            <button id="startMatchBtnDesktop" type="button" class="tipoff-btn px-10 py-3.5 rounded-2xl font-arcade text-3xl text-white tracking-wider uppercase cursor-pointer">
+              TIP OFF!
+            </button>
           </div>
         </div>
-        <div class="sticky bottom-0 z-20 -mx-3 sm:-mx-6 px-3 sm:px-6 pt-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-[#070b14]/[0.97] border-t border-slate-800/90 flex justify-center lg:static lg:m-0 lg:p-0 lg:bg-transparent lg:border-0 shrink-0">
-          <button id="startMatchBtn" class="tipoff-btn w-full sm:w-auto sm:min-w-[280px] px-8 sm:px-10 py-3 sm:py-3.5 rounded-2xl font-arcade text-2xl sm:text-3xl text-white tracking-wider uppercase cursor-pointer">
-            TIP OFF!
-          </button>
         </div>
+      </div>
+
+      <!-- ALWAYS-PINNED MOBILE / TABLET TIP OFF DOCK (SEPARATE FROM SCROLL BOX) -->
+      <div class="lg:hidden shrink-0 px-3 pt-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-[#090f1d] border-t-2 border-orange-500/40 shadow-[0_-10px_28px_rgba(0,0,0,0.75)]">
+        <button id="startMatchBtn" type="button" class="tipoff-btn w-full py-3 rounded-2xl font-arcade text-2xl text-white tracking-wider uppercase cursor-pointer">
+          TIP OFF!
+        </button>
       </div>
     </section>
 
@@ -447,7 +457,7 @@
     <!-- OST PLAYBOOK TIMEOUT MODAL (ZERO CLIPPING + VERTICAL FRACTIONS)         -->
     <!-- ======================================================================= -->
     <section id="mathModal" class="hidden absolute inset-0 z-40 flex items-center justify-center p-2 sm:p-5 bg-slate-950/[0.92]">
-      <div class="mobile-scroll w-full max-w-3xl max-h-[90dvh] rounded-2xl bg-[#0b101d] p-3.5 sm:p-6 border-2 border-cyan-400/70 shadow-2xl">
+      <div class="mobile-scroll w-full max-w-3xl max-h-[90%] rounded-2xl bg-[#0b101d] p-3.5 sm:p-6 border-2 border-cyan-400/70 shadow-2xl">
         <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3 mb-3 sm:mb-4">
           <div class="min-w-0">
             <span class="inline-block px-2.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 text-[11px] sm:text-xs font-extrabold uppercase tracking-wider">
@@ -495,7 +505,7 @@
     <!-- QUARTER / HALFTIME / FINAL SUMMARY MODAL                                -->
     <!-- ======================================================================= -->
     <section id="periodModal" class="hidden absolute inset-0 z-40 flex items-center justify-center p-3 sm:p-4 bg-slate-950/90">
-      <div class="mobile-scroll w-full max-w-lg max-h-[90dvh] rounded-2xl bg-[#0b101d] border-2 border-orange-500/60 p-4 sm:p-6 text-center shadow-2xl">
+      <div class="mobile-scroll w-full max-w-lg max-h-[90%] rounded-2xl bg-[#0b101d] border-2 border-orange-500/60 p-4 sm:p-6 text-center shadow-2xl">
         <div id="periodBadge" class="inline-block px-3 py-1 rounded-full bg-orange-500/20 border border-orange-500/50 text-orange-300 text-xs font-extrabold uppercase tracking-wider mb-2">
           END OF QUARTER 1
         </div>
@@ -536,7 +546,7 @@
 
     <!-- PAUSE OVERLAY -->
     <section id="pauseModal" class="hidden absolute inset-0 z-40 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85">
-      <div class="mobile-scroll w-full max-w-sm max-h-[90dvh] rounded-2xl bg-[#0b101d] border-2 border-amber-400/60 p-5 sm:p-6 text-center shadow-2xl">
+      <div class="mobile-scroll w-full max-w-sm max-h-[90%] rounded-2xl bg-[#0b101d] border-2 border-amber-400/60 p-5 sm:p-6 text-center shadow-2xl">
         <h2 class="font-arcade text-2xl sm:text-3xl text-amber-400 mb-2">GAME PAUSED</h2>
         <p id="pauseHelpText" class="text-xs text-slate-400 mb-5">Press P or tap Resume to jump back onto the hardwood.</p>
         <div class="flex flex-col gap-2.5">
@@ -3500,6 +3510,8 @@
     });
 
     document.getElementById('startMatchBtn').addEventListener('click', startMatch);
+    const desktopStartBtn = document.getElementById('startMatchBtnDesktop');
+    if (desktopStartBtn) desktopStartBtn.addEventListener('click', startMatch);
     document.getElementById('mathNextBtn').addEventListener('click', resumeFromMathTimeout);
     document.getElementById('hudPauseBtn').addEventListener('click', togglePause);
     document.getElementById('resumeGameBtn').addEventListener('click', togglePause);

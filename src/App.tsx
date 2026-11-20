@@ -305,7 +305,7 @@ function StudentTrackerShell() {
   };
 
   return (
-    <div className="flex flex-col w-screen h-screen h-dvh overflow-hidden bg-[#070b14] text-slate-100">
+    <div className="fixed inset-0 flex flex-col overflow-hidden bg-[#070b14] text-slate-100">
       {/* NON-INTRUSIVE TOP STUDENT TRACKER BAR (NEVER OVERLAPS THE COURT) */}
       <header className="w-full shrink-0 bg-[#080d19] border-b border-slate-800/95 px-2 sm:px-4 py-1 sm:py-1.5 z-30">
         <div className="max-w-[1440px] mx-auto flex flex-wrap items-center justify-between gap-1.5 sm:gap-2">
