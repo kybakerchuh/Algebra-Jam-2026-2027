@@ -5,7 +5,7 @@
 
 import { onAuthStateChanged, type User } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
-import { BarChart3, CheckCircle2, LogOut, XCircle } from 'lucide-react';
+import { BarChart3, CheckCircle2, LogOut, Maximize2, Minimize2, XCircle } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { StatsDrawerModal } from './components/StatsDrawerModal';
@@ -83,7 +83,24 @@ function GoogleLogoIcon() {
   );
 }
 
+function detectMobileOrTabletClient(): boolean {
+  if (typeof window === 'undefined' || typeof navigator === 'undefined') return false;
+  const ua = navigator.userAgent || '';
+  const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+  const isIPadOS = navigator.platform === 'MacIntel' && (navigator.maxTouchPoints || 0) > 1;
+  const coarseNoHover = Boolean(
+    window.matchMedia && window.matchMedia('(pointer: coarse) and (hover: none)').matches
+  );
+  const anyFineHover = Boolean(
+    window.matchMedia && window.matchMedia('(pointer: fine) and (hover: hover)').matches
+  );
+  if (isMobileUA || isIPadOS) return true;
+  if (coarseNoHover && !anyFineHover && (navigator.maxTouchPoints || 0) > 0) return true;
+  return false;
+}
+
 function StudentTrackerShell() {
+  const rootRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const writeQueueRef = useRef<Promise<void>>(Promise.resolve());
 
@@ -98,10 +115,68 @@ function StudentTrackerShell() {
   const [guestLifetime, setGuestLifetime] = useState<LifetimeProgressView>(loadGuestLifetime);
   const [cloudLifetime, setCloudLifetime] = useState<LifetimeProgressView>(createEmptyLifetime);
   const [statsModalOpen, setStatsModalOpen] = useState(false);
+  const [isMobileDevice, setIsMobileDevice] = useState<boolean>(detectMobileOrTabletClient);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   if (syncError) {
     throw syncError;
   }
+
+  useEffect(() => {
+    const syncDeviceAndFs = () => {
+      setIsMobileDevice(detectMobileOrTabletClient());
+      const docWithWebkit = document as Document & { webkitFullscreenElement?: Element | null };
+      setIsFullscreen(Boolean(document.fullscreenElement || docWithWebkit.webkitFullscreenElement));
+    };
+    window.addEventListener('resize', syncDeviceAndFs);
+    window.addEventListener('orientationchange', syncDeviceAndFs);
+    document.addEventListener('fullscreenchange', syncDeviceAndFs);
+    document.addEventListener('webkitfullscreenchange', syncDeviceAndFs);
+    return () => {
+      window.removeEventListener('resize', syncDeviceAndFs);
+      window.removeEventListener('orientationchange', syncDeviceAndFs);
+      document.removeEventListener('fullscreenchange', syncDeviceAndFs);
+      document.removeEventListener('webkitfullscreenchange', syncDeviceAndFs);
+    };
+  }, []);
+
+  const handleToggleLandscapeFullscreen = async () => {
+    try {
+      const docWithWebkit = document as Document & {
+        webkitFullscreenElement?: Element | null;
+        webkitExitFullscreen?: () => Promise<void> | void;
+      };
+      const fsActive = Boolean(document.fullscreenElement || docWithWebkit.webkitFullscreenElement);
+      if (fsActive) {
+        if (document.exitFullscreen) await document.exitFullscreen();
+        else if (docWithWebkit.webkitExitFullscreen) await docWithWebkit.webkitExitFullscreen();
+        try {
+          const orient = screen.orientation as ScreenOrientation & { unlock?: () => void };
+          orient?.unlock?.();
+        } catch {
+          // Ignore orientation unlock errors
+        }
+      } else {
+        const el = (rootRef.current || document.documentElement) as HTMLElement & {
+          webkitRequestFullscreen?: () => Promise<void> | void;
+        };
+        if (el.requestFullscreen) await el.requestFullscreen();
+        else if (el.webkitRequestFullscreen) await el.webkitRequestFullscreen();
+        try {
+          const orient = screen.orientation as ScreenOrientation & {
+            lock?: (o: 'landscape') => Promise<void>;
+          };
+          if (orient?.lock) await orient.lock('landscape');
+        } catch {
+          // Browsers like iOS Safari restrict programmatic lock; natural rotation still works
+        }
+      }
+    } catch {
+      // Gracefully ignore fullscreen blocks inside nested iframes
+    } finally {
+      returnFocusToGame();
+    }
+  };
 
   const returnFocusToGame = useCallback(() => {
     setTimeout(() => {
@@ -305,10 +380,10 @@ function StudentTrackerShell() {
   };
 
   return (
-    <div className="fixed inset-0 flex flex-col overflow-hidden bg-[#070b14] text-slate-100">
+    <div ref={rootRef} className="fixed inset-0 flex flex-col overflow-hidden bg-[#070b14] text-slate-100">
       {/* NON-INTRUSIVE TOP STUDENT TRACKER BAR (NEVER OVERLAPS THE COURT) */}
-      <header className="w-full shrink-0 bg-[#080d19] border-b border-slate-800/95 px-2 sm:px-4 py-1 sm:py-1.5 z-30">
-        <div className="max-w-[1440px] mx-auto flex flex-wrap items-center justify-between gap-1.5 sm:gap-2">
+      <header className="tracker-header-landscape w-full shrink-0 bg-[#080d19] border-b border-slate-800/95 px-2 sm:px-4 py-1 sm:py-1.5 z-30">
+        <div className="tracker-header-row max-w-[1440px] mx-auto flex flex-wrap items-center justify-between gap-1.5 sm:gap-2">
           {/* Left: Google Sign-In / Student Profile */}
           <div className="flex items-center gap-2 min-w-0">
             {!authReady ? (
@@ -434,6 +509,23 @@ function StudentTrackerShell() {
               <BarChart3 className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Topic Stats</span>
             </button>
+
+            {/* Phone/Tablet Only: Fullscreen Landscape Button */}
+            {isMobileDevice && (
+              <button
+                type="button"
+                onClick={handleToggleLandscapeFullscreen}
+                className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-orange-950/80 hover:bg-orange-900/80 border border-orange-400/60 text-orange-200 text-[11px] font-extrabold uppercase tracking-wider cursor-pointer transition shrink-0"
+                title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen / Landscape Mode'}
+              >
+                {isFullscreen ? (
+                  <Minimize2 className="w-3.5 h-3.5" />
+                ) : (
+                  <Maximize2 className="w-3.5 h-3.5" />
+                )}
+                <span className="hidden sm:inline">{isFullscreen ? 'Exit' : 'Full'}</span>
+              </button>
+            )}
           </div>
         </div>
 

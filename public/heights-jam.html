@@ -176,6 +176,64 @@
       transform: scale(0.92);
       filter: brightness(1.22);
     }
+    @media (max-height: 520px) and (orientation: landscape) {
+      #topHud {
+        padding-top: 2px !important;
+        padding-bottom: 2px !important;
+        padding-left: max(0.5rem, env(safe-area-inset-left, 0px)) !important;
+        padding-right: max(0.5rem, env(safe-area-inset-right, 0px)) !important;
+      }
+      #hudPlayerScore, #hudCpuScore {
+        font-size: 1.35rem !important;
+        line-height: 1 !important;
+      }
+      #hudPlayerFouls, #hudCpuFouls {
+        display: none !important;
+      }
+      #mobileControlsLayer {
+        padding-bottom: 6px !important;
+        padding-left: max(0.6rem, env(safe-area-inset-left, 0px)) !important;
+        padding-right: max(0.6rem, env(safe-area-inset-right, 0px)) !important;
+      }
+      #touchJoystickZone {
+        width: 92px !important;
+        height: 92px !important;
+      }
+      #touchJoystickKnob {
+        width: 38px !important;
+        height: 38px !important;
+      }
+      #touchSwitchBtn, #touchOopBtn {
+        height: 32px !important;
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+        font-size: 9px !important;
+      }
+      #touchTurboBtn {
+        width: 48px !important;
+        height: 48px !important;
+        font-size: 9px !important;
+      }
+      #touchPassBtn {
+        width: 54px !important;
+        height: 54px !important;
+        font-size: 9px !important;
+      }
+      #touchShootBtn {
+        width: 64px !important;
+        height: 64px !important;
+        font-size: 10px !important;
+      }
+      #menuMobileDock {
+        padding-top: 6px !important;
+        padding-bottom: max(6px, env(safe-area-inset-bottom, 0px)) !important;
+      }
+      #startMatchBtn {
+        padding-top: 8px !important;
+        padding-bottom: 8px !important;
+        font-size: 1.25rem !important;
+      }
+    }
   </style>
 </head>
 <body class="w-full h-full overflow-hidden flex flex-col bg-[#080c14]">
@@ -393,7 +451,7 @@
       </div>
 
       <!-- ALWAYS-PINNED MOBILE / TABLET TIP OFF DOCK (SEPARATE FROM SCROLL BOX) -->
-      <div class="lg:hidden shrink-0 px-3 pt-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-[#090f1d] border-t-2 border-orange-500/40 shadow-[0_-10px_28px_rgba(0,0,0,0.75)]">
+      <div id="menuMobileDock" class="lg:hidden shrink-0 px-3 pt-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-[#090f1d] border-t-2 border-orange-500/40 shadow-[0_-10px_28px_rgba(0,0,0,0.75)]">
         <button id="startMatchBtn" type="button" class="tipoff-btn w-full py-3 rounded-2xl font-arcade text-2xl text-white tracking-wider uppercase cursor-pointer">
           TIP OFF!
         </button>
@@ -2958,8 +3016,20 @@
       canvas.width = Math.max(1, Math.floor(rect.width * dpr));
       canvas.height = Math.max(1, Math.floor(rect.height * dpr));
     }
+    function handleOrientationOrViewportResize() {
+      resizeCanvas();
+      updateTouchControlsVisibility();
+      setTimeout(() => { resizeCanvas(); updateTouchControlsVisibility(); }, 100);
+      setTimeout(() => { resizeCanvas(); updateTouchControlsVisibility(); }, 280);
+    }
     window.addEventListener('resize', resizeCanvas);
-    window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 120));
+    window.addEventListener('orientationchange', handleOrientationOrViewportResize);
+    if (window.screen && window.screen.orientation && window.screen.orientation.addEventListener) {
+      window.screen.orientation.addEventListener('change', handleOrientationOrViewportResize);
+    }
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', resizeCanvas);
+    }
     if (window.ResizeObserver && canvas.parentElement) {
       new ResizeObserver(() => resizeCanvas()).observe(canvas.parentElement);
     }

@@ -11,3 +11,15 @@ body,
   overscroll-behavior: none;
   background: #070b14;
 }
+
+@media (max-height: 520px) and (orientation: landscape) {
+  .tracker-header-landscape {
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+    padding-left: max(0.5rem, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(0.5rem, env(safe-area-inset-right, 0px)) !important;
+  }
+  .tracker-header-row {
+    flex-wrap: nowrap !important;
+  }
+}
