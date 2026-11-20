@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>NBA Jam: On Fire Edition (2026-27 Season)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,16 +13,23 @@
       box-sizing: border-box;
       user-select: none;
       -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
     }
     html, body {
       margin: 0;
       padding: 0;
       width: 100%;
       height: 100%;
+      height: 100dvh;
       overflow: hidden;
+      overscroll-behavior: none;
       background: #080c14;
       font-family: 'Inter', sans-serif;
       color: #f8fafc;
+    }
+    button {
+      touch-action: manipulation;
     }
     .font-arcade {
       font-family: 'Russo One', sans-serif;
@@ -137,63 +144,90 @@
       hyphens: none;
       line-height: 1.45;
     }
+
+    /* PHONE/TABLET VIRTUAL ARCADE CONTROLS */
+    #mobileControlsLayer {
+      touch-action: none;
+    }
+    .touch-joystick-base {
+      touch-action: none;
+      background: radial-gradient(circle at center, rgba(15, 23, 42, 0.72) 0%, rgba(7, 11, 20, 0.45) 75%);
+      border: 2px solid rgba(251, 146, 60, 0.55);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45), inset 0 0 18px rgba(56, 189, 248, 0.12);
+    }
+    .touch-joystick-knob {
+      background: radial-gradient(circle at 35% 30%, #fde047 0%, #f97316 65%, #c2410c 100%);
+      border: 2px solid rgba(255, 255, 255, 0.85);
+      box-shadow: 0 4px 14px rgba(249, 115, 22, 0.65);
+      will-change: transform;
+    }
+    .touch-arcade-btn {
+      touch-action: none;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      transition: transform 0.06s ease, filter 0.06s ease, box-shadow 0.06s ease;
+    }
+    .touch-arcade-btn.touch-pressed {
+      transform: scale(0.92);
+      filter: brightness(1.22);
+    }
   </style>
 </head>
-<body class="w-screen h-screen overflow-hidden flex flex-col bg-[#080c14]">
+<body class="w-screen h-screen h-dvh overflow-hidden flex flex-col bg-[#080c14]">
 
   <!-- TOP ARCADE SCOREBOARD HUD (IN-GAME) -->
-  <header id="topHud" class="hidden w-full bg-gradient-to-r from-[#070b14] via-[#0f172a] to-[#070b14] border-b-2 border-orange-500/50 px-3 py-1.5 z-20 shrink-0">
-    <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
+  <header id="topHud" class="hidden w-full bg-gradient-to-r from-[#070b14] via-[#0f172a] to-[#070b14] border-b-2 border-orange-500/50 px-2 sm:px-3 py-1 sm:py-1.5 z-20 shrink-0">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-1.5 sm:gap-2">
       <!-- PLAYER TEAM -->
-      <div class="flex items-center gap-2.5 flex-1 min-w-0">
-        <div id="hudPlayerBadge" class="w-10 h-10 rounded-xl flex items-center justify-center font-arcade text-base font-bold border-2 border-white/30 shrink-0 shadow-md">
+      <div class="flex items-center gap-1.5 sm:gap-2.5 flex-1 min-w-0">
+        <div id="hudPlayerBadge" class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center font-arcade text-xs sm:text-base font-bold border-2 border-white/30 shrink-0 shadow-md">
           LAL
         </div>
         <div class="min-w-0 flex-1 max-w-[235px]">
           <div class="flex items-center justify-between gap-1">
-            <span id="hudPlayerName" class="font-arcade text-sm sm:text-base tracking-wide truncate text-white">LAKERS</span>
-            <span id="hudPlayerStreak" class="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">NORMAL</span>
+            <span id="hudPlayerName" class="font-arcade text-xs sm:text-base tracking-wide truncate text-white">LAKERS</span>
+            <span id="hudPlayerStreak" class="hidden sm:inline-block text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 shrink-0">NORMAL</span>
           </div>
-          <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden border border-slate-700 mt-0.5">
+          <div class="w-full h-2 sm:h-2.5 bg-slate-800 rounded-full overflow-hidden border border-slate-700 mt-0.5">
             <div id="hudPlayerTurbo" class="h-full bg-gradient-to-r from-amber-400 via-orange-500 to-red-500 transition-all duration-75" style="width: 100%;"></div>
           </div>
-          <div id="hudPlayerFouls" class="flex items-center gap-2 text-[10px] text-slate-300 mt-0.5 truncate"></div>
+          <div id="hudPlayerFouls" class="hidden sm:flex items-center gap-2 text-[10px] text-slate-300 mt-0.5 truncate"></div>
         </div>
-        <div id="hudPlayerScore" class="font-arcade text-3xl sm:text-4xl text-amber-400 gold-glow px-2">0</div>
+        <div id="hudPlayerScore" class="font-arcade text-2xl sm:text-3xl md:text-4xl text-amber-400 gold-glow px-1 sm:px-2 shrink-0">0</div>
       </div>
 
       <!-- CENTER CLOCK, QUARTER & MID-GAME TOPIC SWITCHER -->
-      <div class="flex flex-col items-center justify-center px-3.5 py-0.5 rounded-xl bg-black/75 border border-orange-500/40 shrink-0">
-        <div class="flex items-center gap-2">
-          <span id="hudQuarter" class="font-arcade text-xs sm:text-sm text-orange-400 tracking-wider">Q1</span>
+      <div class="flex flex-col items-center justify-center px-2 sm:px-3.5 py-0.5 rounded-xl bg-black/75 border border-orange-500/40 shrink-0">
+        <div class="flex items-center gap-1.5 sm:gap-2">
+          <span id="hudQuarter" class="font-arcade text-[11px] sm:text-sm text-orange-400 tracking-wider">Q1</span>
           <span class="text-slate-600">•</span>
-          <span id="hudClock" class="font-arcade text-xl sm:text-2xl text-white tracking-wider">2:00</span>
+          <span id="hudClock" class="font-arcade text-base sm:text-2xl text-white tracking-wider">2:00</span>
         </div>
-        <div class="flex items-center gap-2 text-[10px] text-slate-400">
-          <span id="hudMathTimer" class="text-cyan-300 font-semibold">TIMEOUT IN 30s</span>
-          <span>|</span>
-          <button id="hudTopicBtn" class="text-emerald-300 hover:text-white font-bold uppercase tracking-wider cursor-pointer" title="Switch OST Topic">
+        <div class="flex flex-wrap items-center justify-center gap-x-1.5 sm:gap-x-2 text-[9px] sm:text-[10px] text-slate-400">
+          <span id="hudMathTimer" class="text-cyan-300 font-semibold whitespace-nowrap">TIMEOUT IN 30s</span>
+          <span class="hidden sm:inline">|</span>
+          <button id="hudTopicBtn" class="text-emerald-300 hover:text-white font-bold uppercase tracking-wider cursor-pointer whitespace-nowrap" title="Switch OST Topic">
             TOPIC: ALL
           </button>
           <span>|</span>
-          <button id="hudPauseBtn" class="text-amber-300 hover:text-white font-bold uppercase tracking-wider cursor-pointer">PAUSE [P]</button>
+          <button id="hudPauseBtn" class="text-amber-300 hover:text-white font-bold uppercase tracking-wider cursor-pointer whitespace-nowrap">PAUSE</button>
         </div>
       </div>
 
       <!-- CPU TEAM -->
-      <div class="flex items-center justify-end gap-2.5 flex-1 min-w-0">
-        <div id="hudCpuScore" class="font-arcade text-3xl sm:text-4xl text-amber-400 gold-glow px-2">0</div>
+      <div class="flex items-center justify-end gap-1.5 sm:gap-2.5 flex-1 min-w-0">
+        <div id="hudCpuScore" class="font-arcade text-2xl sm:text-3xl md:text-4xl text-amber-400 gold-glow px-1 sm:px-2 shrink-0">0</div>
         <div class="min-w-0 flex-1 max-w-[235px] text-right">
           <div class="flex items-center justify-between gap-1">
-            <span id="hudCpuStreak" class="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">NORMAL</span>
-            <span id="hudCpuName" class="font-arcade text-sm sm:text-base tracking-wide truncate text-white">CELTICS</span>
+            <span id="hudCpuStreak" class="hidden sm:inline-block text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 shrink-0">NORMAL</span>
+            <span id="hudCpuName" class="font-arcade text-xs sm:text-base tracking-wide truncate text-white ml-auto">CELTICS</span>
           </div>
-          <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden border border-slate-700 mt-0.5">
+          <div class="w-full h-2 sm:h-2.5 bg-slate-800 rounded-full overflow-hidden border border-slate-700 mt-0.5">
             <div id="hudCpuTurbo" class="h-full bg-gradient-to-r from-emerald-400 to-teal-500 transition-all duration-75 ml-auto" style="width: 100%;"></div>
           </div>
-          <div id="hudCpuFouls" class="flex items-center justify-end gap-2 text-[10px] text-slate-300 mt-0.5 truncate"></div>
+          <div id="hudCpuFouls" class="hidden sm:flex items-center justify-end gap-2 text-[10px] text-slate-300 mt-0.5 truncate"></div>
         </div>
-        <div id="hudCpuBadge" class="w-10 h-10 rounded-xl flex items-center justify-center font-arcade text-base font-bold border-2 border-white/30 shrink-0 shadow-md">
+        <div id="hudCpuBadge" class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center font-arcade text-xs sm:text-base font-bold border-2 border-white/30 shrink-0 shadow-md">
           BOS
         </div>
       </div>
@@ -206,8 +240,8 @@
     <canvas id="gameCanvas"></canvas>
 
     <!-- ANNOUNCER CALLOUT BANNER -->
-    <div id="announcerBanner" class="pointer-events-none hidden absolute top-5 left-1/2 -translate-x-1/2 z-20 text-center">
-      <div id="announcerText" class="font-arcade text-3xl sm:text-5xl text-amber-300 fire-glow uppercase tracking-wider px-5 py-1.5 rounded-2xl bg-black/70 border-2 border-orange-500/70">
+    <div id="announcerBanner" class="pointer-events-none hidden absolute top-3 sm:top-5 left-1/2 -translate-x-1/2 z-20 text-center max-w-[92vw]">
+      <div id="announcerText" class="font-arcade text-xl sm:text-4xl md:text-5xl text-amber-300 fire-glow uppercase tracking-wider px-4 sm:px-5 py-1 sm:py-1.5 rounded-2xl bg-black/75 border-2 border-orange-500/70 whitespace-nowrap">
         BOOMSHAKALAKA!
       </div>
     </div>
@@ -215,17 +249,17 @@
     <!-- ======================================================================= -->
     <!-- MAIN HUB OVERLAY                                                        -->
     <!-- ======================================================================= -->
-    <section id="menuOverlay" class="absolute inset-0 z-30 flex items-center justify-center p-4 sm:p-6 bg-[#070b14]/96 backdrop-blur-md overflow-y-auto">
-      <div class="w-full max-w-5xl my-auto flex flex-col gap-5">
+    <section id="menuOverlay" class="absolute inset-0 z-30 flex items-start sm:items-center justify-center p-3 sm:p-6 bg-[#070b14]/96 backdrop-blur-md overflow-y-auto">
+      <div class="w-full max-w-5xl sm:my-auto flex flex-col gap-3.5 sm:gap-5 pb-4 sm:pb-0">
         <!-- HEADER TITLE -->
-        <div class="text-center relative">
-          <button id="toggleSoundBtn" class="absolute right-0 top-1 px-3 py-1.5 rounded-xl bg-[#0e1525] hover:bg-slate-800 border border-slate-700/80 text-xs font-bold text-slate-300 cursor-pointer">
+        <div class="text-center relative flex flex-col items-center">
+          <button id="toggleSoundBtn" class="self-end sm:self-auto sm:absolute sm:right-0 sm:top-1 mb-1 sm:mb-0 px-3 py-1.5 rounded-xl bg-[#0e1525] hover:bg-slate-800 border border-slate-700/80 text-xs font-bold text-slate-300 cursor-pointer">
             SFX: ON
           </button>
-          <h1 class="font-arcade text-4xl sm:text-6xl title-gradient tracking-wide uppercase">
+          <h1 class="font-arcade text-3xl sm:text-5xl md:text-6xl title-gradient tracking-wide uppercase leading-tight">
             NBA JAM: ON FIRE
           </h1>
-          <p class="text-xs sm:text-sm text-slate-300 font-medium mt-1">
+          <p class="text-[11px] sm:text-sm text-slate-300 font-medium mt-1 px-2">
             Real-Life NBA Ratings • Aerial Dunk Packages • 300 Algebra 1 OST Playbook Questions
           </p>
         </div>
@@ -330,9 +364,9 @@
         </div>
 
         <!-- BOTTOM BAR: CONTROLS SUMMARY & TIP OFF! BUTTON -->
-        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
           <div class="flex-1 rounded-2xl bg-[#0b101d] border border-slate-800 px-4 py-3 flex items-center text-xs sm:text-sm text-slate-300 leading-relaxed">
-            <div>
+            <div id="menuControlsText">
               <span class="font-arcade text-amber-400 tracking-wider mr-1.5">CONTROLS:</span>
               <span class="text-white font-bold">WASD / Arrows</span> Move •
               <span class="text-white font-bold">SHIFT</span> Turbo •
@@ -343,7 +377,7 @@
               <span class="text-white font-bold">P</span> Pause
             </div>
           </div>
-          <button id="startMatchBtn" class="tipoff-btn px-9 py-4 rounded-2xl font-arcade text-2xl sm:text-3xl text-white tracking-wider uppercase cursor-pointer shrink-0">
+          <button id="startMatchBtn" class="tipoff-btn px-8 sm:px-9 py-3.5 sm:py-4 rounded-2xl font-arcade text-2xl sm:text-3xl text-white tracking-wider uppercase cursor-pointer shrink-0">
             TIP OFF!
           </button>
         </div>
@@ -353,67 +387,67 @@
     <!-- ======================================================================= -->
     <!-- TEAM SELECTOR MODAL                                                     -->
     <!-- ======================================================================= -->
-    <section id="teamSelectModal" class="hidden absolute inset-0 z-40 flex flex-col bg-[#080d18]/98 backdrop-blur-md p-4 sm:p-6">
-      <div class="max-w-7xl w-full mx-auto flex flex-col h-full">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 shrink-0">
-          <div>
-            <h2 id="teamSelectTitle" class="font-arcade text-2xl sm:text-4xl text-amber-400 tracking-wide uppercase">
+    <section id="teamSelectModal" class="hidden absolute inset-0 z-40 flex flex-col bg-[#080d18]/98 backdrop-blur-md p-3 sm:p-6">
+      <div class="max-w-7xl w-full mx-auto flex flex-col h-full min-h-0">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 pb-3 sm:pb-4 shrink-0">
+          <div class="min-w-0">
+            <h2 id="teamSelectTitle" class="font-arcade text-xl sm:text-4xl text-amber-400 tracking-wide uppercase truncate">
               SELECT YOUR 2026-27 NBA SQUAD (P1)
             </h2>
             <p class="text-xs sm:text-sm text-slate-400 mt-0.5">
               All 30 NBA franchises with authentic 2026-27 duos &amp; skill ratings
             </p>
           </div>
-          <div class="flex items-center gap-2.5">
+          <div class="flex items-center gap-2 w-full sm:w-auto">
             <input
               id="teamSearchInput"
               type="text"
               placeholder="Search team or player..."
-              class="w-56 sm:w-64 px-4 py-2.5 rounded-xl bg-[#0e1526] border border-slate-700 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-amber-400"
+              class="flex-1 sm:flex-none sm:w-64 min-w-0 px-3.5 py-2 sm:py-2.5 rounded-xl bg-[#0e1526] border border-slate-700 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-amber-400"
             />
-            <button id="closeTeamSelectBtn" class="px-5 py-2.5 rounded-xl bg-[#131b2e] hover:bg-slate-800 border border-slate-600 font-arcade text-xs sm:text-sm text-white tracking-wider uppercase cursor-pointer">
+            <button id="closeTeamSelectBtn" class="px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-[#131b2e] hover:bg-slate-800 border border-slate-600 font-arcade text-xs sm:text-sm text-white tracking-wider uppercase cursor-pointer shrink-0">
               CLOSE
             </button>
           </div>
         </div>
-        <div id="teamGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 overflow-y-auto pr-2 pb-4 flex-1"></div>
+        <div id="teamGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-3.5 overflow-y-auto pr-1 sm:pr-2 pb-4 flex-1 min-h-0"></div>
       </div>
     </section>
 
     <!-- ======================================================================= -->
     <!-- OST PLAYBOOK TOPIC SELECTOR MODAL (PRE-GAME & MID-GAME)                 -->
     <!-- ======================================================================= -->
-    <section id="topicSelectModal" class="hidden absolute inset-0 z-50 flex flex-col bg-[#080d18]/98 backdrop-blur-md p-4 sm:p-6">
-      <div class="max-w-6xl w-full mx-auto flex flex-col h-full">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 shrink-0">
-          <div>
-            <h2 class="font-arcade text-2xl sm:text-3xl text-emerald-400 tracking-wide uppercase">
+    <section id="topicSelectModal" class="hidden absolute inset-0 z-50 flex flex-col bg-[#080d18]/98 backdrop-blur-md p-3 sm:p-6">
+      <div class="max-w-6xl w-full mx-auto flex flex-col h-full min-h-0">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 pb-3 sm:pb-4 shrink-0">
+          <div class="min-w-0">
+            <h2 class="font-arcade text-xl sm:text-3xl text-emerald-400 tracking-wide uppercase">
               SELECT ALGEBRA 1 OST PLAYBOOK TOPIC
             </h2>
             <p class="text-xs sm:text-sm text-slate-400 mt-0.5">
               300 Playbook-Style Questions across all 10 bold OST topics (30 questions per topic). Switch anytime!
             </p>
           </div>
-          <button id="closeTopicSelectBtn" class="px-5 py-2.5 rounded-xl bg-[#131b2e] hover:bg-slate-800 border border-slate-600 font-arcade text-xs sm:text-sm text-white tracking-wider uppercase cursor-pointer self-start sm:self-auto">
+          <button id="closeTopicSelectBtn" class="px-5 py-2 sm:py-2.5 rounded-xl bg-[#131b2e] hover:bg-slate-800 border border-slate-600 font-arcade text-xs sm:text-sm text-white tracking-wider uppercase cursor-pointer self-start sm:self-auto shrink-0">
             CLOSE
           </button>
         </div>
 
-        <div id="topicGrid" class="grid grid-cols-1 md:grid-cols-2 gap-3 overflow-y-auto pr-2 pb-4 flex-1"></div>
+        <div id="topicGrid" class="grid grid-cols-1 md:grid-cols-2 gap-3 overflow-y-auto pr-1 sm:pr-2 pb-4 flex-1 min-h-0"></div>
       </div>
     </section>
 
     <!-- ======================================================================= -->
     <!-- OST PLAYBOOK TIMEOUT MODAL (ZERO CLIPPING + VERTICAL FRACTIONS)         -->
     <!-- ======================================================================= -->
-    <section id="mathModal" class="hidden absolute inset-0 z-40 flex items-center justify-center p-3 sm:p-5 bg-slate-950/92 backdrop-blur-md">
-      <div class="w-full max-w-3xl max-h-[92vh] overflow-y-auto rounded-2xl bg-[#0b101d] p-5 sm:p-6 border-2 border-cyan-400/70 shadow-2xl">
-        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3 mb-4">
+    <section id="mathModal" class="hidden absolute inset-0 z-40 flex items-center justify-center p-2 sm:p-5 bg-slate-950/92 backdrop-blur-md">
+      <div class="w-full max-w-3xl max-h-[90dvh] overflow-y-auto rounded-2xl bg-[#0b101d] p-3.5 sm:p-6 border-2 border-cyan-400/70 shadow-2xl">
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3 mb-3 sm:mb-4">
           <div class="min-w-0">
-            <span class="inline-block px-2.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 text-xs font-extrabold uppercase tracking-wider">
+            <span class="inline-block px-2.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 text-[11px] sm:text-xs font-extrabold uppercase tracking-wider">
               HEIGHTS ALGEBRA OST TIMEOUT
             </span>
-            <h2 id="mathModalTopicTitle" class="font-arcade text-lg sm:text-2xl text-white mt-1 leading-snug">
+            <h2 id="mathModalTopicTitle" class="font-arcade text-base sm:text-2xl text-white mt-1 leading-snug">
               OST PLAYBOOK CHALLENGE
             </h2>
           </div>
@@ -428,9 +462,9 @@
         </div>
 
         <!-- QUESTION PROMPT + OPTIONAL VISUAL (TABLE / GRAPH / STEPS) -->
-        <div class="bg-[#070b14] border-2 border-slate-800 rounded-xl p-4 sm:p-5 mb-4">
-          <div id="mathProblemExpr" class="math-prose text-base sm:text-xl text-slate-100 font-semibold"></div>
-          <div id="mathVisualContainer" class="hidden mt-4 flex justify-center"></div>
+        <div class="bg-[#070b14] border-2 border-slate-800 rounded-xl p-3.5 sm:p-5 mb-3.5 sm:mb-4">
+          <div id="mathProblemExpr" class="math-prose text-sm sm:text-xl text-slate-100 font-semibold"></div>
+          <div id="mathVisualContainer" class="hidden mt-3 sm:mt-4 w-full overflow-x-auto flex justify-center"></div>
         </div>
 
         <!-- 4 MULTIPLE CHOICE BUTTONS (AUTO 1-COL OR 2-COL BASED ON LENGTH) -->
@@ -454,51 +488,51 @@
     <!-- ======================================================================= -->
     <!-- QUARTER / HALFTIME / FINAL SUMMARY MODAL                                -->
     <!-- ======================================================================= -->
-    <section id="periodModal" class="hidden absolute inset-0 z-40 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md">
-      <div class="w-full max-w-lg rounded-2xl bg-[#0b101d] border-2 border-orange-500/60 p-6 text-center shadow-2xl">
+    <section id="periodModal" class="hidden absolute inset-0 z-40 flex items-center justify-center p-3 sm:p-4 bg-slate-950/90 backdrop-blur-md">
+      <div class="w-full max-w-lg max-h-[90dvh] overflow-y-auto rounded-2xl bg-[#0b101d] border-2 border-orange-500/60 p-4 sm:p-6 text-center shadow-2xl">
         <div id="periodBadge" class="inline-block px-3 py-1 rounded-full bg-orange-500/20 border border-orange-500/50 text-orange-300 text-xs font-extrabold uppercase tracking-wider mb-2">
           END OF QUARTER 1
         </div>
-        <h2 id="periodTitle" class="font-arcade text-3xl sm:text-4xl text-white mb-4">QUARTER BREAK</h2>
+        <h2 id="periodTitle" class="font-arcade text-2xl sm:text-4xl text-white mb-4">QUARTER BREAK</h2>
 
-        <div class="grid grid-cols-3 items-center gap-2 bg-[#070b14] border border-slate-800 rounded-xl p-4 mb-4">
+        <div class="grid grid-cols-3 items-center gap-2 bg-[#070b14] border border-slate-800 rounded-xl p-3 sm:p-4 mb-4">
           <div>
-            <div id="periodPlayerName" class="font-arcade text-base text-cyan-400">LAKERS</div>
-            <div id="periodPlayerScore" class="font-arcade text-4xl text-white">0</div>
+            <div id="periodPlayerName" class="font-arcade text-xs sm:text-base text-cyan-400 truncate">LAKERS</div>
+            <div id="periodPlayerScore" class="font-arcade text-3xl sm:text-4xl text-white">0</div>
           </div>
-          <div class="font-arcade text-2xl text-slate-500">VS</div>
+          <div class="font-arcade text-xl sm:text-2xl text-slate-500">VS</div>
           <div>
-            <div id="periodCpuName" class="font-arcade text-base text-rose-400">CELTICS</div>
-            <div id="periodCpuScore" class="font-arcade text-4xl text-white">0</div>
+            <div id="periodCpuName" class="font-arcade text-xs sm:text-base text-rose-400 truncate">CELTICS</div>
+            <div id="periodCpuScore" class="font-arcade text-3xl sm:text-4xl text-white">0</div>
           </div>
         </div>
 
-        <div id="periodStatsRow" class="grid grid-cols-3 gap-2 text-xs bg-[#080c16] border border-slate-800 rounded-xl p-3 mb-5">
+        <div id="periodStatsRow" class="grid grid-cols-3 gap-2 text-xs bg-[#080c16] border border-slate-800 rounded-xl p-2.5 sm:p-3 mb-4 sm:mb-5">
           <div>
             <div class="text-slate-400">DUNKS</div>
-            <div id="statDunks" class="font-arcade text-xl text-amber-400">0</div>
+            <div id="statDunks" class="font-arcade text-lg sm:text-xl text-amber-400">0</div>
           </div>
           <div>
             <div class="text-slate-400">BLOCKS</div>
-            <div id="statBlocks" class="font-arcade text-xl text-cyan-400">0</div>
+            <div id="statBlocks" class="font-arcade text-lg sm:text-xl text-cyan-400">0</div>
           </div>
           <div>
             <div class="text-slate-400">OST SCORE</div>
-            <div id="statMath" class="font-arcade text-xl text-emerald-400">0 / 0</div>
+            <div id="statMath" class="font-arcade text-lg sm:text-xl text-emerald-400">0 / 0</div>
           </div>
         </div>
 
-        <button id="periodContinueBtn" class="tipoff-btn w-full py-3 rounded-xl font-arcade text-xl text-white tracking-wider cursor-pointer">
+        <button id="periodContinueBtn" class="tipoff-btn w-full py-3 rounded-xl font-arcade text-lg sm:text-xl text-white tracking-wider cursor-pointer">
           START NEXT QUARTER
         </button>
       </div>
     </section>
 
     <!-- PAUSE OVERLAY -->
-    <section id="pauseModal" class="hidden absolute inset-0 z-40 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm">
-      <div class="w-full max-w-sm rounded-2xl bg-[#0b101d] border-2 border-amber-400/60 p-6 text-center shadow-2xl">
-        <h2 class="font-arcade text-3xl text-amber-400 mb-2">GAME PAUSED</h2>
-        <p class="text-xs text-slate-400 mb-5">Press P or click Resume to jump back onto the hardwood.</p>
+    <section id="pauseModal" class="hidden absolute inset-0 z-40 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-sm">
+      <div class="w-full max-w-sm max-h-[90dvh] overflow-y-auto rounded-2xl bg-[#0b101d] border-2 border-amber-400/60 p-5 sm:p-6 text-center shadow-2xl">
+        <h2 class="font-arcade text-2xl sm:text-3xl text-amber-400 mb-2">GAME PAUSED</h2>
+        <p id="pauseHelpText" class="text-xs text-slate-400 mb-5">Press P or tap Resume to jump back onto the hardwood.</p>
         <div class="flex flex-col gap-2.5">
           <button id="resumeGameBtn" class="tipoff-btn py-2.5 rounded-xl font-arcade text-lg text-white tracking-wider cursor-pointer">
             RESUME GAME
@@ -513,13 +547,85 @@
       </div>
     </section>
 
-    <!-- BOTTOM QUICK CONTROLS BAR (IN-GAME REFERENCE) -->
+    <!-- BOTTOM QUICK CONTROLS BAR (DESKTOP KEYBOARD REFERENCE ONLY) -->
     <div id="bottomControlsBar" class="hidden absolute bottom-2 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 bg-[#070b14]/85 border border-slate-800 px-3.5 py-1 rounded-full text-[11px] text-slate-300 backdrop-blur-sm whitespace-nowrap">
       <span class="text-amber-300 font-bold">TURBO:</span> Shift •
       <span class="text-amber-300 font-bold">SHOOT/DUNK/BLOCK:</span> Space •
       <span class="text-amber-300 font-bold">PASS/STEAL:</span> E •
       <span class="text-amber-300 font-bold">ALLEY-OOP:</span> Shift+E •
       <span class="text-amber-300 font-bold">SWITCH:</span> F / Tab
+    </div>
+
+    <!-- PHONE & TABLET ONLY VIRTUAL TOUCH CONTROLS (SHOWN ONLY ON PHONES/TABLETS DURING ACTIVE PLAY) -->
+    <div id="mobileControlsLayer" class="hidden pointer-events-none absolute inset-0 z-[25] flex items-end justify-between px-3 pb-3 sm:px-5 sm:pb-4">
+      <!-- LEFT THUMB: ANALOG VIRTUAL JOYSTICK -->
+      <div
+        id="touchJoystickZone"
+        class="pointer-events-auto relative w-28 h-28 sm:w-32 sm:h-32 rounded-full touch-joystick-base flex items-center justify-center shrink-0"
+        style="margin-left: env(safe-area-inset-left, 0px); margin-bottom: env(safe-area-inset-bottom, 0px);"
+      >
+        <div class="pointer-events-none absolute inset-3 rounded-full border border-white/10"></div>
+        <div class="pointer-events-none absolute w-px h-full bg-white/10"></div>
+        <div class="pointer-events-none absolute h-px w-full bg-white/10"></div>
+        <div
+          id="touchJoystickKnob"
+          class="pointer-events-none w-11 h-11 sm:w-12 sm:h-12 rounded-full touch-joystick-knob flex items-center justify-center"
+        >
+          <span class="w-3 h-3 rounded-full bg-white/45"></span>
+        </div>
+      </div>
+
+      <!-- RIGHT THUMB: ARCADE ACTION BUTTON CLUSTER -->
+      <div
+        id="touchActionCluster"
+        class="pointer-events-auto flex flex-col items-end gap-2 shrink-0"
+        style="margin-right: env(safe-area-inset-right, 0px); margin-bottom: env(safe-area-inset-bottom, 0px);"
+      >
+        <!-- TOP MINI ROW: SWITCH + ALLEY-OOP -->
+        <div class="flex items-center gap-2">
+          <button
+            id="touchSwitchBtn"
+            type="button"
+            class="touch-arcade-btn h-11 px-3 rounded-full bg-slate-900/80 border-2 border-slate-400/70 text-[10px] sm:text-xs font-arcade text-slate-200 tracking-wider uppercase shadow-lg"
+          >
+            SWITCH
+          </button>
+          <button
+            id="touchOopBtn"
+            type="button"
+            class="touch-arcade-btn h-11 px-3 rounded-full bg-violet-950/85 border-2 border-violet-400/85 text-[10px] sm:text-xs font-arcade text-violet-200 tracking-wider uppercase shadow-lg"
+          >
+            ALLEY-OOP
+          </button>
+        </div>
+
+        <!-- MAIN ROW: TURBO (HOLD) + PASS/STL + SHOOT/DUNK/BLK -->
+        <div class="flex items-end gap-2">
+          <button
+            id="touchTurboBtn"
+            type="button"
+            class="touch-arcade-btn w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-amber-950/80 border-2 border-amber-400/85 text-[10px] sm:text-[11px] font-arcade text-amber-300 tracking-wider uppercase shadow-lg flex flex-col items-center justify-center leading-tight"
+          >
+            <span>TURBO</span>
+          </button>
+          <button
+            id="touchPassBtn"
+            type="button"
+            class="touch-arcade-btn w-[60px] h-[60px] sm:w-[68px] sm:h-[68px] rounded-full bg-cyan-950/85 border-2 border-cyan-400/90 text-[10px] sm:text-[11px] font-arcade text-cyan-200 tracking-wider uppercase shadow-lg flex flex-col items-center justify-center leading-tight"
+          >
+            <span>PASS</span>
+            <span class="text-[8px] sm:text-[9px] text-cyan-300/85">STEAL</span>
+          </button>
+          <button
+            id="touchShootBtn"
+            type="button"
+            class="touch-arcade-btn w-[72px] h-[72px] sm:w-20 sm:h-20 rounded-full bg-gradient-to-b from-orange-500/90 to-red-700/90 border-2 border-amber-300 text-xs sm:text-sm font-arcade text-white tracking-wider uppercase shadow-[0_4px_20px_rgba(234,88,12,0.55)] flex flex-col items-center justify-center leading-tight"
+          >
+            <span>SHOOT</span>
+            <span class="text-[8px] sm:text-[9px] text-amber-200">DUNK/BLK</span>
+          </button>
+        </div>
+      </div>
     </div>
   </main>
 
@@ -862,6 +968,78 @@
     };
 
     const keys = {};
+
+    // =========================================================================
+    // 2B. PHONE & TABLET DETECTION + VIRTUAL TOUCH STATE
+    // =========================================================================
+    function detectMobileOrTabletDevice() {
+      const ua = navigator.userAgent || '';
+      const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+      const isIPadOS = navigator.platform === 'MacIntel' && (navigator.maxTouchPoints || 0) > 1;
+      const coarseNoHover = Boolean(
+        window.matchMedia && window.matchMedia('(pointer: coarse) and (hover: none)').matches
+      );
+      const anyFineHover = Boolean(
+        window.matchMedia && window.matchMedia('(pointer: fine) and (hover: hover)').matches
+      );
+
+      if (isMobileUA || isIPadOS) return true;
+      if (coarseNoHover && !anyFineHover && (navigator.maxTouchPoints || 0) > 0) return true;
+      return false;
+    }
+
+    const touchInput = {
+      isMobileOrTablet: detectMobileOrTabletDevice(),
+      joyPointerId: null,
+      joyX: 0,
+      joyY: 0,
+      turboPointerId: null,
+      turboHeld: false,
+      lastVisible: null
+    };
+
+    function resetTouchInputs() {
+      touchInput.joyPointerId = null;
+      touchInput.joyX = 0;
+      touchInput.joyY = 0;
+      touchInput.turboPointerId = null;
+      touchInput.turboHeld = false;
+      const knob = document.getElementById('touchJoystickKnob');
+      if (knob) knob.style.transform = 'translate(0px, 0px)';
+      const turboBtn = document.getElementById('touchTurboBtn');
+      if (turboBtn) turboBtn.classList.remove('touch-pressed', 'ring-2', 'ring-amber-300');
+    }
+
+    function updateTouchControlsVisibility() {
+      touchInput.isMobileOrTablet = detectMobileOrTabletDevice();
+      const layer = document.getElementById('mobileControlsLayer');
+      const desktopBar = document.getElementById('bottomControlsBar');
+      const pauseBtn = document.getElementById('hudPauseBtn');
+
+      if (pauseBtn) {
+        pauseBtn.textContent = touchInput.isMobileOrTablet ? 'PAUSE' : 'PAUSE [P]';
+      }
+
+      if (desktopBar) {
+        if (touchInput.isMobileOrTablet || state.mode === 'MENU') {
+          desktopBar.classList.add('hidden');
+        } else {
+          desktopBar.classList.remove('hidden');
+        }
+      }
+
+      if (!layer) return;
+      const shouldShowTouch = touchInput.isMobileOrTablet && state.mode === 'PLAYING';
+      if (touchInput.lastVisible === shouldShowTouch) return;
+      touchInput.lastVisible = shouldShowTouch;
+
+      if (shouldShowTouch) {
+        layer.classList.remove('hidden');
+      } else {
+        layer.classList.add('hidden');
+        resetTouchInputs();
+      }
+    }
 
     // =========================================================================
     // 3. WEB AUDIO SYNTHESIZER (NO EXTERNAL URLS)
@@ -1285,6 +1463,32 @@
       document.getElementById('hubTopicCountBadge').textContent = `${topicMeta.count} Qs`;
 
       document.getElementById('toggleSoundBtn').textContent = state.soundOn ? 'SFX: ON' : 'SFX: OFF';
+
+      const menuControlsText = document.getElementById('menuControlsText');
+      if (menuControlsText) {
+        if (touchInput.isMobileOrTablet) {
+          menuControlsText.innerHTML = `
+            <span class="font-arcade text-amber-400 tracking-wider mr-1.5">TOUCH CONTROLS:</span>
+            <span class="text-white font-bold">Left Stick</span> Move •
+            <span class="text-white font-bold">TURBO</span> Hold to Sprint •
+            <span class="text-white font-bold">SHOOT</span> Dunk / Jump / Block •
+            <span class="text-white font-bold">PASS</span> Pass / Steal •
+            <span class="text-white font-bold">ALLEY-OOP</span> Lob Slam •
+            <span class="text-white font-bold">SWITCH</span> Change Player
+          `;
+        } else {
+          menuControlsText.innerHTML = `
+            <span class="font-arcade text-amber-400 tracking-wider mr-1.5">CONTROLS:</span>
+            <span class="text-white font-bold">WASD / Arrows</span> Move •
+            <span class="text-white font-bold">SHIFT</span> Turbo •
+            <span class="text-white font-bold">SPACE</span> Shoot / Dunk / Block •
+            <span class="text-white font-bold">E</span> Pass / Steal •
+            <span class="text-white font-bold">SHIFT + E</span> Alley-Oop •
+            <span class="text-white font-bold">F / TAB</span> Switch Player •
+            <span class="text-white font-bold">P</span> Pause
+          `;
+        }
+      }
 
       try {
         if (window.parent && window.parent !== window) {
@@ -1777,6 +1981,7 @@
       state.mode = 'PLAYING';
       resizeCanvas();
       updateHud();
+      updateTouchControlsVisibility();
       triggerAnnouncer('TIP OFF!', 1.2);
       playTone(520, 'triangle', 0.22, 0.16, 780);
     }
@@ -1863,8 +2068,22 @@
         } else if (!teamHasBall && me.z === 0) {
           triggerBlockJump(state.controlledIdx);
         }
+      } else if (action === 'alleyoop') {
+        const mateIdx = state.controlledIdx === 0 ? 1 : 0;
+        const mateAvailable = state.players[mateIdx] && !state.players[mateIdx].fouledOut;
+        if (hasBall && me.z === 0) {
+          if (!mateAvailable) {
+            triggerAnnouncer('NO TEAMMATE AVAILABLE!', 0.9);
+            return;
+          }
+          launchAlleyOop(state.controlledIdx, mateIdx);
+        } else if (teamHasBall && !hasBall && mateAvailable && state.players[mateIdx].z === 0 && me.z === 0) {
+          launchAlleyOop(mateIdx, state.controlledIdx);
+        } else if (!teamHasBall && me.z === 0) {
+          attemptSteal(state.controlledIdx);
+        }
       } else if (action === 'pass') {
-        const isTurboHeld = Boolean(keys['ShiftLeft'] || keys['ShiftRight']);
+        const isTurboHeld = Boolean(keys['ShiftLeft'] || keys['ShiftRight'] || touchInput.turboHeld);
         const mateIdx = state.controlledIdx === 0 ? 1 : 0;
         const mateAvailable = state.players[mateIdx] && !state.players[mateIdx].fouledOut;
 
@@ -2379,12 +2598,19 @@
       if (keys['KeyA'] || keys['ArrowLeft']) ix -= 1;
       if (keys['KeyD'] || keys['ArrowRight']) ix += 1;
 
-      if (ix !== 0 || iy !== 0) {
-        const len = Math.hypot(ix, iy);
-        ix /= len;
-        iy /= len;
+      if (ix === 0 && iy === 0 && (Math.abs(touchInput.joyX) > 0.01 || Math.abs(touchInput.joyY) > 0.01)) {
+        ix = touchInput.joyX;
+        iy = touchInput.joyY;
+      }
 
-        const wantTurbo = (keys['ShiftLeft'] || keys['ShiftRight']) && state.playerTurbo > 1;
+      const inputLen = Math.hypot(ix, iy);
+      if (inputLen > 0.01) {
+        if (inputLen > 1) {
+          ix /= inputLen;
+          iy /= inputLen;
+        }
+
+        const wantTurbo = (keys['ShiftLeft'] || keys['ShiftRight'] || touchInput.turboHeld) && state.playerTurbo > 1;
         const speedStatMult = 0.86 + (me.speed / 100) * 0.26;
         const mult = wantTurbo ? CONFIG.TURBO_MULT : 1.0;
         const targetVx = ix * CONFIG.BASE_SPEED * speedStatMult * mult;
@@ -2393,7 +2619,7 @@
         const accel = wantTurbo ? 24 : 20;
         me.vx += (targetVx - me.vx) * Math.min(1, accel * dt);
         me.vy += (targetVy - me.vy) * Math.min(1, accel * dt);
-        if (Math.abs(ix) > 0.1) me.facing = ix > 0 ? 1 : -1;
+        if (Math.abs(ix) > 0.08) me.facing = ix > 0 ? 1 : -1;
 
         if (wantTurbo) {
           state.playerTurbo = Math.max(0, state.playerTurbo - CONFIG.TURBO_DRAIN_RATE * dt);
@@ -2717,6 +2943,10 @@
       canvas.height = Math.max(1, Math.floor(rect.height * dpr));
     }
     window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 120));
+    if (window.ResizeObserver && canvas.parentElement) {
+      new ResizeObserver(() => resizeCanvas()).observe(canvas.parentElement);
+    }
 
     function renderCourt() {
       ctx.fillStyle = '#080c14';
@@ -3062,6 +3292,8 @@
       const dt = Math.min(0.05, (timestamp - lastTimestamp) / 1000);
       lastTimestamp = timestamp;
 
+      updateTouchControlsVisibility();
+
       if (state.mode === 'PLAYING') {
         updatePhysics(dt);
       }
@@ -3115,16 +3347,118 @@
 
     window.addEventListener('blur', () => {
       Object.keys(keys).forEach(k => { keys[k] = false; });
+      resetTouchInputs();
     });
+
+    function setupMobileTouchListeners() {
+      const joyZone = document.getElementById('touchJoystickZone');
+      const joyKnob = document.getElementById('touchJoystickKnob');
+      if (joyZone && joyKnob) {
+        const updateJoystickFromEvent = (e) => {
+          const rect = joyZone.getBoundingClientRect();
+          const cx = rect.left + rect.width / 2;
+          const cy = rect.top + rect.height / 2;
+          const maxR = Math.max(24, rect.width * 0.36);
+          const dx = e.clientX - cx;
+          const dy = e.clientY - cy;
+          const dist = Math.hypot(dx, dy);
+          const clamped = Math.min(dist, maxR);
+          const angle = Math.atan2(dy, dx);
+          const kx = dist > 0 ? Math.cos(angle) * clamped : 0;
+          const ky = dist > 0 ? Math.sin(angle) * clamped : 0;
+
+          joyKnob.style.transform = `translate(${kx.toFixed(1)}px, ${ky.toFixed(1)}px)`;
+
+          const norm = clamped / maxR;
+          if (norm < 0.16) {
+            touchInput.joyX = 0;
+            touchInput.joyY = 0;
+          } else {
+            const scaled = Math.min(1, (norm - 0.16) / 0.68);
+            touchInput.joyX = Math.cos(angle) * scaled;
+            touchInput.joyY = Math.sin(angle) * scaled;
+          }
+        };
+
+        joyZone.addEventListener('pointerdown', (e) => {
+          e.preventDefault();
+          if (touchInput.joyPointerId !== null) return;
+          touchInput.joyPointerId = e.pointerId;
+          try { joyZone.setPointerCapture(e.pointerId); } catch (err) {}
+          updateJoystickFromEvent(e);
+        });
+
+        joyZone.addEventListener('pointermove', (e) => {
+          if (e.pointerId !== touchInput.joyPointerId) return;
+          e.preventDefault();
+          updateJoystickFromEvent(e);
+        });
+
+        const releaseJoy = (e) => {
+          if (e.pointerId !== touchInput.joyPointerId) return;
+          touchInput.joyPointerId = null;
+          touchInput.joyX = 0;
+          touchInput.joyY = 0;
+          joyKnob.style.transform = 'translate(0px, 0px)';
+        };
+        joyZone.addEventListener('pointerup', releaseJoy);
+        joyZone.addEventListener('pointercancel', releaseJoy);
+      }
+
+      const bindTapAction = (id, action) => {
+        const btn = document.getElementById(id);
+        if (!btn) return;
+        btn.addEventListener('pointerdown', (e) => {
+          e.preventDefault();
+          btn.classList.add('touch-pressed');
+          handlePlayerAction(action);
+        });
+        const unpress = () => btn.classList.remove('touch-pressed');
+        btn.addEventListener('pointerup', unpress);
+        btn.addEventListener('pointercancel', unpress);
+        btn.addEventListener('pointerleave', unpress);
+      };
+
+      bindTapAction('touchShootBtn', 'shoot');
+      bindTapAction('touchPassBtn', 'pass');
+      bindTapAction('touchOopBtn', 'alleyoop');
+      bindTapAction('touchSwitchBtn', 'switch');
+
+      const turboBtn = document.getElementById('touchTurboBtn');
+      if (turboBtn) {
+        turboBtn.addEventListener('pointerdown', (e) => {
+          e.preventDefault();
+          touchInput.turboPointerId = e.pointerId;
+          touchInput.turboHeld = true;
+          try { turboBtn.setPointerCapture(e.pointerId); } catch (err) {}
+          turboBtn.classList.add('touch-pressed', 'ring-2', 'ring-amber-300');
+        });
+        const releaseTurbo = (e) => {
+          if (touchInput.turboPointerId !== null && e.pointerId !== touchInput.turboPointerId) return;
+          touchInput.turboPointerId = null;
+          touchInput.turboHeld = false;
+          turboBtn.classList.remove('touch-pressed', 'ring-2', 'ring-amber-300');
+        };
+        turboBtn.addEventListener('pointerup', releaseTurbo);
+        turboBtn.addEventListener('pointercancel', releaseTurbo);
+      }
+
+      window.addEventListener('resize', () => {
+        resizeCanvas();
+        updateTouchControlsVisibility();
+      });
+    }
 
     function togglePause() {
       if (state.mode === 'PLAYING') {
         state.mode = 'PAUSED';
+        resetTouchInputs();
         document.getElementById('pauseModal').classList.remove('hidden');
       } else if (state.mode === 'PAUSED') {
         state.mode = 'PLAYING';
         document.getElementById('pauseModal').classList.add('hidden');
       }
+      updateTouchControlsVisibility();
     }
 
     document.querySelectorAll('.cpu-diff-btn').forEach(btn => {
@@ -3166,10 +3500,12 @@
 
     document.getElementById('quitToMenuBtn').addEventListener('click', () => {
       state.mode = 'MENU';
+      resetTouchInputs();
       document.getElementById('pauseModal').classList.add('hidden');
       document.getElementById('topHud').classList.add('hidden');
       document.getElementById('bottomControlsBar').classList.add('hidden');
       document.getElementById('menuOverlay').classList.remove('hidden');
+      updateTouchControlsVisibility();
       refreshMenuUI();
     });
 
@@ -3177,9 +3513,11 @@
       document.getElementById('periodModal').classList.add('hidden');
       if (state.mode === 'GAME_OVER') {
         state.mode = 'MENU';
+        resetTouchInputs();
         document.getElementById('topHud').classList.add('hidden');
         document.getElementById('bottomControlsBar').classList.add('hidden');
         document.getElementById('menuOverlay').classList.remove('hidden');
+        updateTouchControlsVisibility();
         refreshMenuUI();
       } else {
         state.quarter++;
@@ -3189,6 +3527,7 @@
         setupCourtPositions(state.quarter % 2 === 1 ? 'player' : 'cpu');
         state.mode = 'PLAYING';
         updateHud();
+        updateTouchControlsVisibility();
         triggerAnnouncer(state.quarter <= 4 ? `QUARTER ${state.quarter}!` : 'OVERTIME!', 1.2);
       }
     });
@@ -3202,7 +3541,9 @@
 
     window.onload = function () {
       loadPreferences();
+      setupMobileTouchListeners();
       refreshMenuUI();
+      updateTouchControlsVisibility();
       resizeCanvas();
       requestAnimationFrame(gameLoop);
     };
